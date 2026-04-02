@@ -1,7 +1,6 @@
 import GameEnvBackground from './essentials/GameEnvBackground.js';
 import Player from './essentials/Player.js';
 
-// ── Marketplace Data ──────────────────────────────────────────────────────────
 const SHOP_DATA = {
   weapons: [
     { id: 'w1', name: "Cutlass",              icon: '🗡',  desc: "A trusty pirate blade.",                    price: 25,  rarity: 'common',    stats: ['+12 ATK', '+5 SPD'] },
@@ -40,419 +39,388 @@ const SHOP_DATA = {
   ],
 };
 
-// ── CSS injected once ─────────────────────────────────────────────────────────
-const MARKETPLACE_CSS = (path) => `
+const ENEMY_TYPES = [
+  { id: 'skeleton', name: 'Skeleton Guard',  icon: '💀', hp: 30,  atk: 6,  def: 2,  reward: [3,  6],  rarity: 'common'   },
+  { id: 'rat',      name: 'Giant Wharf Rat', icon: '🐀', hp: 20,  atk: 4,  def: 1,  reward: [2,  4],  rarity: 'common'   },
+  { id: 'ghost',    name: 'Ship Ghost',      icon: '👻', hp: 45,  atk: 9,  def: 4,  reward: [6,  10], rarity: 'uncommon' },
+  { id: 'pirate',   name: 'Rival Pirate',    icon: '🏴‍☠️', hp: 55,  atk: 12, def: 5,  reward: [8,  14], rarity: 'uncommon' },
+  { id: 'kraken',   name: 'Baby Kraken',     icon: '🦑', hp: 80,  atk: 16, def: 8,  reward: [15, 22], rarity: 'rare'     },
+  { id: 'davy',     name: "Davy's Wrath",    icon: '⚓', hp: 120, atk: 22, def: 12, reward: [25, 35], rarity: 'epic'     },
+];
+
+const BATTLE_CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=IM+Fell+English:ital@0;1&display=swap');
-
-#marketplace-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 99998;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0,0,0,0.78);
-  backdrop-filter: blur(3px);
-  animation: mpFadeIn 0.25s ease;
-}
-@keyframes mpFadeIn { from { opacity:0 } to { opacity:1 } }
-
-#marketplace-panel {
-  width: min(980px, 96vw);
-  max-height: 90vh;
-  background: linear-gradient(160deg, #1a0e04 0%, #0d0804 100%);
-  border: 3px solid #8a5010;
-  border-radius: 16px;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  box-shadow: 0 0 60px rgba(200,120,20,0.18), inset 0 0 80px rgba(0,0,0,0.5);
-  font-family: 'IM Fell English', serif;
-}
-
-/* Header */
-#mp-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 22px;
-  border-bottom: 2px solid #5a3010;
-  background: rgba(0,0,0,0.4);
-  gap: 12px;
-  flex-shrink: 0;
-}
-
-#mp-title {
-  font-family: 'Cinzel Decorative', cursive;
-  color: #e8b030;
-  font-size: 18px;
-  letter-spacing: 2px;
-  text-shadow: 0 2px 10px rgba(0,0,0,0.8);
-}
-#mp-title small {
-  display: block;
-  color: #a07838;
-  font-size: 10px;
-  letter-spacing: 3px;
-  margin-top: 2px;
-  font-family: 'IM Fell English', serif;
-}
-
-/* Ruby HUD */
-#mp-hud {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(0,0,0,0.55);
-  border: 2px solid #6a3808;
-  border-radius: 30px;
-  padding: 6px 16px;
-}
-#mp-ruby-icon {
-  width: 28px; height: 28px;
-  background-image: url('${path}/images/gamebuilder/sprites/ruby.png');
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-  image-rendering: pixelated;
-  filter: drop-shadow(0 0 4px rgba(255,80,80,0.55));
-}
-#mp-ruby-count {
-  font-family: 'Cinzel Decorative', cursive;
-  color: #f5c030;
-  font-size: 20px;
-  min-width: 40px;
-  text-align: right;
-}
-
-/* Close */
-#mp-close-btn {
-  background: rgba(120,30,10,0.5);
-  border: 1.5px solid #8a3010;
-  border-radius: 8px;
-  color: #e8a030;
-  font-family: 'Cinzel Decorative', cursive;
-  font-size: 11px;
-  padding: 7px 14px;
-  cursor: pointer;
-  letter-spacing: 1px;
-  transition: background 0.15s;
-}
-#mp-close-btn:hover { background: rgba(200,60,20,0.55); color: #fff; }
-
-/* Coin-collect bar removed — coins live on the map */
-
-/* ── Map rubies (spawned on game canvas, outside shop UI) ── */
-.mp-map-ruby {
-  position: fixed;
-  width: 36px; height: 36px;
-  background-image: url('${path}/images/gamebuilder/sprites/ruby.png');
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-  image-rendering: pixelated;
-  cursor: pointer;
-  pointer-events: auto;
-  z-index: 9990;
-  filter: drop-shadow(0 0 5px rgba(255,60,60,0.65));
-  animation: mapRubyBob 1.6s ease-in-out infinite;
-  transition: transform 0.12s, opacity 0.15s;
-}
-.mp-map-ruby:hover {
-  transform: scale(1.4) translateY(-4px) !important;
-  filter: drop-shadow(0 0 10px rgba(255,130,60,1));
-}
-@keyframes mapRubyBob {
-  0%,100% { transform: translateY(0px);  }
-  50%      { transform: translateY(-6px); }
-}
-
-/* Tabs */
-#mp-tabs {
-  display: flex;
-  gap: 5px;
-  padding: 10px 22px 0;
-  border-bottom: 2px solid rgba(180,110,30,0.3);
-  flex-shrink: 0;
-  flex-wrap: wrap;
-}
-.mp-tab {
-  background: rgba(0,0,0,0.4);
-  border: 1.5px solid rgba(180,110,30,0.3);
-  border-bottom: none;
-  border-radius: 7px 7px 0 0;
-  color: #a07838;
-  font-family: 'Cinzel Decorative', cursive;
-  font-size: 10px;
-  padding: 7px 14px;
-  cursor: pointer;
-  letter-spacing: 1px;
-  transition: background 0.15s, color 0.15s;
-}
-.mp-tab:hover:not(.active) { background: rgba(160,100,20,0.2); color: #e0a040; }
-.mp-tab.active { background: rgba(140,80,10,0.45); color: #f5c030; border-color: #9a6010; border-bottom-color: transparent; }
-
-/* Shop grid */
-#mp-shopgrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
-  gap: 14px;
-  padding: 18px 22px;
-  overflow-y: auto;
-  flex: 1;
-}
-#mp-shopgrid::-webkit-scrollbar { width: 5px; }
-#mp-shopgrid::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
-#mp-shopgrid::-webkit-scrollbar-thumb { background: #6a3808; border-radius: 4px; }
-
-/* Item cards */
-.mp-card {
-  background: linear-gradient(160deg, rgba(44,22,5,0.94) 0%, rgba(24,10,2,0.96) 100%);
-  border: 2px solid rgba(140,80,20,0.45);
-  border-radius: 11px;
-  padding: 14px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  position: relative;
-  overflow: hidden;
-  transition: border-color 0.2s, transform 0.15s;
-}
-.mp-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse at 50% 0%, rgba(220,160,40,0.05) 0%, transparent 65%);
-  pointer-events: none;
-}
-.mp-card:hover { border-color: rgba(220,150,30,0.75); transform: translateY(-3px); }
-.mp-card.owned { border-color: rgba(50,170,70,0.5); }
-.mp-card.owned::after {
-  content: 'OWNED';
-  position: absolute;
-  top: 8px; right: 8px;
-  background: rgba(30,140,55,0.85);
-  color: #a0ffb0;
-  font-family: 'Cinzel Decorative', cursive;
-  font-size: 8px;
-  padding: 3px 7px;
-  border-radius: 4px;
-  letter-spacing: 1px;
-}
-
-.mp-rarity {
-  position: absolute;
-  top: 7px; left: 9px;
-  font-size: 8px;
-  font-family: 'Cinzel Decorative', cursive;
-  letter-spacing: 1px;
-  padding: 2px 6px;
-  border-radius: 4px;
-}
-.r-common    { background: rgba(90,90,90,0.5);  color: #ccc; }
-.r-uncommon  { background: rgba(20,110,35,0.5); color: #90ee90; }
-.r-rare      { background: rgba(25,55,150,0.5); color: #80b0ff; }
-.r-epic      { background: rgba(90,15,130,0.5); color: #dd90ff; }
-.r-legendary { background: rgba(160,90,0,0.5);  color: #ffc060; }
-
-.mp-icon  { font-size: 38px; text-align: center; padding-top: 18px; line-height: 1; }
-.mp-name  { font-family: 'Cinzel Decorative', cursive; color: #e8b030; font-size: 11px; text-align: center; letter-spacing: 0.5px; }
-.mp-desc  { color: rgba(210,175,115,0.7); font-size: 11px; font-style: italic; text-align: center; line-height: 1.4; }
-.mp-stats { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
-.mp-stat  { background: rgba(0,0,0,0.4); border: 1px solid rgba(180,130,40,0.2); border-radius: 4px; padding: 2px 7px; font-size: 10px; color: #c49840; }
-.mp-stat.pos { color: #78e878; border-color: rgba(60,180,60,0.25); }
-.mp-stat.neg { color: #e87878; border-color: rgba(180,60,60,0.25); }
-
-.mp-price {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  padding-top: 4px;
-  border-top: 1px solid rgba(180,130,40,0.15);
-}
-.mp-price-ruby {
-  width: 18px; height: 18px;
-  background-image: url('${path}/images/gamebuilder/sprites/ruby.png');
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-  image-rendering: pixelated;
-}
-.mp-price-num { font-family: 'Cinzel Decorative', cursive; color: #f0c030; font-size: 15px; }
-
-.mp-buy-btn, .mp-sell-btn {
-  width: 100%;
-  padding: 7px;
-  border-radius: 6px;
-  font-family: 'Cinzel Decorative', cursive;
-  font-size: 10px;
-  cursor: pointer;
-  letter-spacing: 1px;
-  transition: background 0.15s, transform 0.1s;
-}
-.mp-buy-btn {
-  background: rgba(140,75,8,0.7);
-  border: 1.5px solid #b07010;
-  color: #f0c030;
-}
-.mp-buy-btn:hover:not(:disabled) { background: rgba(210,120,15,0.75); color: #fff; transform: scale(1.02); }
-.mp-buy-btn:disabled { opacity: 0.38; cursor: not-allowed; }
-.mp-sell-btn {
-  background: rgba(15,70,25,0.6);
-  border: 1.5px solid rgba(50,150,50,0.5);
-  color: #80ee80;
-}
-.mp-sell-btn:hover { background: rgba(30,120,40,0.7); }
-
-/* Inventory panel */
-#mp-inv-panel {
-  position: absolute;
-  right: -360px;
-  top: 0; bottom: 0;
-  width: 320px;
-  background: linear-gradient(180deg, rgba(18,6,1,0.99) 0%, rgba(8,4,1,1) 100%);
-  border-left: 3px solid #6a3808;
-  z-index: 10;
-  padding: 20px 16px;
-  overflow-y: auto;
-  transition: right 0.28s cubic-bezier(0.4,0,0.2,1);
-}
-#mp-inv-panel.open { right: 0; }
-#mp-inv-panel::-webkit-scrollbar { width: 4px; }
-#mp-inv-panel::-webkit-scrollbar-thumb { background: #5a2808; border-radius: 3px; }
-
-#mp-inv-title {
-  font-family: 'Cinzel Decorative', cursive;
-  color: #e8b030;
-  font-size: 14px;
-  text-align: center;
-  padding-bottom: 12px;
-  border-bottom: 1.5px solid rgba(180,110,30,0.3);
-  margin-bottom: 14px;
-  letter-spacing: 2px;
-}
-#mp-inv-close {
-  float: right;
-  background: none;
-  border: none;
-  color: #a07028;
-  font-size: 18px;
-  cursor: pointer;
-  margin-top: -3px;
-  transition: color 0.15s;
-}
-#mp-inv-close:hover { color: #f0c030; }
-.mp-inv-empty { color: rgba(160,120,60,0.45); font-style: italic; text-align: center; padding: 20px 0; font-size: 13px; }
-.mp-inv-item {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  padding: 9px;
-  border: 1px solid rgba(180,120,40,0.18);
-  border-radius: 7px;
-  margin-bottom: 7px;
-  background: rgba(35,14,3,0.6);
-}
-.mp-inv-icon { font-size: 24px; flex-shrink: 0; line-height: 1; }
-.mp-inv-name { font-family: 'Cinzel Decorative', cursive; color: #e0a828; font-size: 11px; letter-spacing: 0.5px; }
-.mp-inv-meta { color: rgba(180,140,70,0.65); font-size: 10px; font-style: italic; }
-
-/* Inv toggle (lives inside the game overlay, not the panel) */
-#mp-inv-toggle {
-  background: rgba(25,10,2,0.97);
-  border: 2px solid #7a4010;
-  border-radius: 40px;
-  padding: 9px 18px;
-  color: #e8b030;
-  font-family: 'Cinzel Decorative', cursive;
-  font-size: 11px;
-  cursor: pointer;
-  letter-spacing: 1px;
-  transition: background 0.15s;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-#mp-inv-toggle:hover { background: rgba(80,35,5,0.97); }
-
-/* Toast */
-#mp-toast {
-  position: absolute;
-  bottom: 24px; left: 50%;
-  transform: translateX(-50%) translateY(60px);
-  background: rgba(18,8,2,0.97);
-  border: 2px solid #7a4010;
-  border-radius: 9px;
-  padding: 11px 26px;
-  color: #f0c030;
-  font-family: 'Cinzel Decorative', cursive;
-  font-size: 11px;
-  z-index: 9999;
-  opacity: 0;
-  pointer-events: none;
-  letter-spacing: 1px;
-  text-align: center;
-  transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s;
-  white-space: nowrap;
-}
-#mp-toast.show      { transform: translateX(-50%) translateY(0); opacity: 1; }
-#mp-toast.t-success { border-color: #30b050; color: #80ff90; }
-#mp-toast.t-err     { border-color: #c02020; color: #ff8888; }
+#battle-overlay{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.88);backdrop-filter:blur(4px);animation:bFadeIn .22s ease}
+@keyframes bFadeIn{from{opacity:0}to{opacity:1}}
+#battle-panel{width:min(640px,96vw);background:linear-gradient(160deg,#110800 0%,#06030a 100%);border:3px solid #7a3a08;border-radius:18px;overflow:hidden;font-family:'IM Fell English',serif;box-shadow:0 0 80px rgba(180,80,10,.25),inset 0 0 60px rgba(0,0,0,.6)}
+#battle-header{background:rgba(0,0,0,.45);border-bottom:2px solid #4a2406;padding:12px 20px;display:flex;align-items:center;justify-content:space-between}
+#battle-title{font-family:'Cinzel Decorative',cursive;color:#e8a020;font-size:15px;letter-spacing:2px}
+#battle-arena{display:flex;align-items:center;justify-content:space-around;padding:28px 24px 16px;gap:16px}
+.b-fighter{display:flex;flex-direction:column;align-items:center;gap:8px;flex:1}
+.b-fighter-icon{font-size:64px;line-height:1;filter:drop-shadow(0 4px 12px rgba(0,0,0,.7));transition:transform .15s}
+.b-fighter-icon.shake{animation:bShake .35s ease}
+@keyframes bShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(10px)}60%{transform:translateX(-6px)}80%{transform:translateX(5px)}}
+.b-fighter-name{font-family:'Cinzel Decorative',cursive;color:#e8a020;font-size:11px;letter-spacing:1px;text-align:center}
+.b-hp-bar-wrap{width:100%;max-width:160px;background:rgba(0,0,0,.5);border:1.5px solid rgba(180,100,20,.3);border-radius:8px;height:14px;overflow:hidden}
+.b-hp-bar{height:100%;border-radius:7px;transition:width .4s ease}
+.b-hp-bar.player{background:linear-gradient(90deg,#20a050,#40e080)}
+.b-hp-bar.enemy{background:linear-gradient(90deg,#c02020,#e85030)}
+.b-hp-text{font-family:'Cinzel Decorative',cursive;font-size:11px;color:#c8a040}
+#b-vs{font-family:'Cinzel Decorative',cursive;color:#e03020;font-size:26px;text-shadow:0 0 18px rgba(220,60,20,.7);flex-shrink:0}
+#battle-log{background:rgba(0,0,0,.4);border-top:1px solid rgba(180,100,20,.2);border-bottom:1px solid rgba(180,100,20,.2);margin:0 20px 14px;border-radius:8px;padding:10px 14px;min-height:52px;max-height:72px;overflow-y:auto;font-size:13px;color:rgba(220,190,120,.85);font-style:italic;line-height:1.5}
+#battle-log::-webkit-scrollbar{width:4px}#battle-log::-webkit-scrollbar-thumb{background:#5a2808;border-radius:3px}
+.b-log-entry{margin-bottom:2px}.b-log-entry.hit-player{color:#ff8868}.b-log-entry.hit-enemy{color:#68e888}.b-log-entry.special{color:#f0c030}
+#battle-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 20px 20px}
+.b-action-btn{padding:12px;border-radius:8px;font-family:'Cinzel Decorative',cursive;font-size:11px;cursor:pointer;letter-spacing:1px;border:1.5px solid;transition:background .15s,transform .1s,opacity .2s;display:flex;flex-direction:column;align-items:center;gap:4px}
+.b-action-btn .b-action-icon{font-size:22px}
+.b-action-btn .b-action-sub{font-size:9px;opacity:.7;font-family:'IM Fell English',serif}
+.b-action-btn:hover:not(:disabled){transform:translateY(-2px)}
+.b-action-btn:disabled{opacity:.35;cursor:not-allowed}
+.b-btn-attack{background:rgba(140,30,10,.6);border-color:#b04010;color:#f08030}.b-btn-attack:hover:not(:disabled){background:rgba(200,60,20,.7)}
+.b-btn-special{background:rgba(80,20,120,.6);border-color:#9040c0;color:#d080ff}.b-btn-special:hover:not(:disabled){background:rgba(120,40,180,.7)}
+.b-btn-defend{background:rgba(20,60,100,.6);border-color:#3080c0;color:#60b8ff}.b-btn-defend:hover:not(:disabled){background:rgba(30,90,150,.7)}
+.b-btn-flee{background:rgba(40,40,40,.6);border-color:#606060;color:#b0b0b0}.b-btn-flee:hover:not(:disabled){background:rgba(70,70,70,.7)}
+#battle-reward{display:none;flex-direction:column;align-items:center;gap:14px;padding:28px 20px;text-align:center}
+#battle-reward.show{display:flex}
+#b-reward-icon{font-size:52px}
+#b-reward-title{font-family:'Cinzel Decorative',cursive;color:#f5c030;font-size:20px;letter-spacing:2px;text-shadow:0 0 20px rgba(240,180,20,.5)}
+#b-reward-rubies{display:flex;align-items:center;gap:8px;font-family:'Cinzel Decorative',cursive;font-size:28px;color:#f0c030}
+.b-ruby-icon-lg{font-size:30px;filter:drop-shadow(0 0 6px rgba(255,80,60,.8))}
+#b-reward-btn{margin-top:8px;background:rgba(140,75,8,.7);border:1.5px solid #b07010;border-radius:8px;color:#f0c030;font-family:'Cinzel Decorative',cursive;font-size:12px;padding:11px 32px;cursor:pointer;letter-spacing:1px;transition:background .15s}
+#b-reward-btn:hover{background:rgba(210,120,15,.75);color:#fff}
+#battle-defeat{display:none;flex-direction:column;align-items:center;gap:14px;padding:28px 20px;text-align:center}
+#battle-defeat.show{display:flex}
+#b-defeat-title{font-family:'Cinzel Decorative',cursive;color:#e03030;font-size:20px;letter-spacing:2px}
+#b-defeat-btn{background:rgba(80,20,10,.7);border:1.5px solid #802010;border-radius:8px;color:#f08060;font-family:'Cinzel Decorative',cursive;font-size:12px;padding:11px 32px;cursor:pointer;letter-spacing:1px;transition:background .15s}
+#b-defeat-btn:hover{background:rgba(140,40,20,.8)}
+.world-enemy{position:fixed;display:flex;flex-direction:column;align-items:center;gap:2px;z-index:9988;pointer-events:none;transition:opacity .3s;transform:translate(-50%,-50%);transform-origin:center center}
+.world-enemy.defeated{opacity:0;pointer-events:none}
+.world-enemy-icon{font-size:34px;animation:enemyBob 2s ease-in-out infinite;filter:drop-shadow(0 3px 8px rgba(0,0,0,.7))}
+@keyframes enemyBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.world-enemy-label{background:rgba(0,0,0,.75);border:1px solid rgba(200,60,20,.5);border-radius:4px;padding:2px 7px;font-family:'Cinzel Decorative',cursive;font-size:9px;color:#ff8860;white-space:nowrap}
+.world-enemy-hpbar{width:48px;height:5px;background:rgba(0,0,0,.5);border-radius:3px;overflow:hidden;border:1px solid rgba(200,60,20,.3)}
+.world-enemy-hpfill{height:100%;background:#c02020;border-radius:3px;transition:width .3s}
+.world-enemy-action{display:none;position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);background:rgba(0,0,0,.9);border:1px solid rgba(200,120,40,.65);border-radius:8px;padding:6px 10px;font-family:'Cinzel Decorative',cursive;font-size:10px;color:#ffb970;white-space:nowrap;pointer-events:none;z-index:9990}
+.world-enemy.has-hint .world-enemy-action{display:block}
 `;
 
-// ── MarketplaceUI class ────────────────────────────────────────────────────────
-class MarketplaceUI {
-  constructor(path, onClose) {
-    this.path   = path;
-    this.onClose = onClose;
-    this.coins   = 0;
-    this.inventory = [];
-    this.currentTab = 'weapons';
-    this._toastTimer = null;
+class BattleUI {
+  constructor(enemyType, onClose) {
+    this.onClose       = onClose;
+    this.enemy         = { ...enemyType, curHp: enemyType.hp };
+    this.player        = { name: 'McArchie', maxHp: 80, curHp: 80, atk: 10, def: 3 };
+    this.defending     = false;
+    this.busy          = false;
+    this._earnedRubies = 0;
+    this._build();
+    this._bind();
+    this._log(`⚔ A ${this.enemy.name} appears! Fight or flee!`, 'special');
+  }
 
+  _build() {
+    this.overlay = document.createElement('div');
+    this.overlay.id = 'battle-overlay';
+    this.overlay.innerHTML = `
+      <div id="battle-panel">
+        <div id="battle-header">
+          <div id="battle-title">☠ COMBAT</div>
+          <div id="b-rarity-badge" style="font-family:'Cinzel Decorative',cursive;font-size:10px;padding:3px 10px;border-radius:5px;letter-spacing:1px;"></div>
+        </div>
+        <div id="battle-arena">
+          <div class="b-fighter">
+            <div class="b-fighter-icon" id="b-player-icon">🏴‍☠️</div>
+            <div class="b-fighter-name">McArchie</div>
+            <div class="b-hp-bar-wrap"><div class="b-hp-bar player" id="b-player-hp" style="width:100%"></div></div>
+            <div class="b-hp-text" id="b-player-hp-text">80 / 80</div>
+          </div>
+          <div id="b-vs">VS</div>
+          <div class="b-fighter">
+            <div class="b-fighter-icon" id="b-enemy-icon"></div>
+            <div class="b-fighter-name" id="b-enemy-name"></div>
+            <div class="b-hp-bar-wrap"><div class="b-hp-bar enemy" id="b-enemy-hp" style="width:100%"></div></div>
+            <div class="b-hp-text" id="b-enemy-hp-text"></div>
+          </div>
+        </div>
+        <div id="battle-log"></div>
+        <div id="battle-actions">
+          <button class="b-action-btn b-btn-attack" id="b-attack"><span class="b-action-icon">⚔</span>Attack<span class="b-action-sub">Deal steady damage</span></button>
+          <button class="b-action-btn b-btn-special" id="b-special"><span class="b-action-icon">💥</span>Special<span class="b-action-sub">High risk, high reward</span></button>
+          <button class="b-action-btn b-btn-defend" id="b-defend"><span class="b-action-icon">🛡</span>Defend<span class="b-action-sub">Halve next hit taken</span></button>
+          <button class="b-action-btn b-btn-flee" id="b-flee"><span class="b-action-icon">💨</span>Flee<span class="b-action-sub">50% chance to escape</span></button>
+        </div>
+        <div id="battle-reward">
+          <div id="b-reward-icon">💰</div>
+          <div id="b-reward-title">VICTORY!</div>
+          <div id="b-reward-rubies"><span class="b-ruby-icon-lg">💎</span><span id="b-ruby-amount">0</span> Rubies</div>
+          <button id="b-reward-btn">Claim Reward</button>
+        </div>
+        <div id="battle-defeat">
+          <div style="font-size:52px">💀</div>
+          <div id="b-defeat-title">DEFEATED!</div>
+          <div style="font-family:'IM Fell English',serif;color:rgba(200,150,100,.7);font-size:13px;">Ye fought bravely, sailor...</div>
+          <button id="b-defeat-btn">Retreat</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(this.overlay);
+    document.getElementById('b-enemy-icon').textContent    = this.enemy.icon;
+    document.getElementById('b-enemy-name').textContent    = this.enemy.name;
+    document.getElementById('b-enemy-hp-text').textContent = `${this.enemy.hp} / ${this.enemy.hp}`;
+    const rarityColors = {
+      common:    { bg: 'rgba(80,80,80,.5)',  color: '#ccc'    },
+      uncommon:  { bg: 'rgba(20,100,30,.5)', color: '#90ee90' },
+      rare:      { bg: 'rgba(25,55,150,.5)', color: '#80b0ff' },
+      epic:      { bg: 'rgba(90,15,130,.5)', color: '#dd90ff' },
+      legendary: { bg: 'rgba(160,90,0,.5)', color: '#ffc060' },
+    };
+    const rc    = rarityColors[this.enemy.rarity] || rarityColors.common;
+    const badge = document.getElementById('b-rarity-badge');
+    badge.textContent      = this.enemy.rarity.toUpperCase();
+    badge.style.background = rc.bg;
+    badge.style.color      = rc.color;
+  }
+
+  _bind() {
+    document.getElementById('b-attack').addEventListener('click',  () => this._playerAction('attack'));
+    document.getElementById('b-special').addEventListener('click', () => this._playerAction('special'));
+    document.getElementById('b-defend').addEventListener('click',  () => this._playerAction('defend'));
+    document.getElementById('b-flee').addEventListener('click',    () => this._playerAction('flee'));
+    document.getElementById('b-reward-btn').addEventListener('click', () => {
+      const r = this._earnedRubies;
+      this.destroy();
+      this.onClose?.(r, false);
+    });
+    document.getElementById('b-defeat-btn').addEventListener('click', () => {
+      this.destroy();
+      this.onClose?.(0, true);
+    });
+  }
+
+  _log(msg, cls = '') {
+    const log = document.getElementById('battle-log');
+    if (!log) return;
+    const el = document.createElement('div');
+    el.className   = 'b-log-entry' + (cls ? ' ' + cls : '');
+    el.textContent = msg;
+    log.appendChild(el);
+    log.scrollTop  = log.scrollHeight;
+  }
+
+  _updateBars() {
+    const pp = Math.max(0, this.player.curHp / this.player.maxHp * 100);
+    const ep = Math.max(0, this.enemy.curHp  / this.enemy.hp    * 100);
+    document.getElementById('b-player-hp').style.width      = pp + '%';
+    document.getElementById('b-enemy-hp').style.width       = ep + '%';
+    document.getElementById('b-player-hp-text').textContent = `${Math.max(0, this.player.curHp)} / ${this.player.maxHp}`;
+    document.getElementById('b-enemy-hp-text').textContent  = `${Math.max(0, this.enemy.curHp)} / ${this.enemy.hp}`;
+  }
+
+  _shake(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.remove('shake');
+    void el.offsetWidth;
+    el.classList.add('shake');
+    setTimeout(() => el.classList.remove('shake'), 400);
+  }
+
+  _setButtons(disabled) {
+    ['b-attack', 'b-special', 'b-defend', 'b-flee'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.disabled = disabled;
+    });
+  }
+
+  async _playerAction(action) {
+    if (this.busy) return;
+    this.busy = true;
+    this._setButtons(true);
+
+    if (action === 'attack') {
+      const dmg = Math.max(1, this.player.atk + Math.floor(Math.random() * 8) - this.enemy.def);
+      this._shake('b-enemy-icon');
+      this._log(`⚔ McArchie strikes for ${dmg} damage!`, 'hit-enemy');
+      this.enemy.curHp -= dmg;
+      this._updateBars();
+    } else if (action === 'special') {
+      if (Math.random() < 0.35) {
+        this._log(`💥 Special missed! The enemy dodged!`);
+      } else {
+        const dmg = Math.max(1, this.player.atk * 2 + Math.floor(Math.random() * 14) - this.enemy.def);
+        this._shake('b-enemy-icon');
+        this._log(`💥 SPECIAL ATTACK for ${dmg} damage!`, 'special');
+        this.enemy.curHp -= dmg;
+        this._updateBars();
+      }
+    } else if (action === 'defend') {
+      this.defending = true;
+      this._log(`🛡 McArchie braces for the next blow!`);
+    } else if (action === 'flee') {
+      if (Math.random() < 0.5) {
+        this._log(`💨 McArchie escaped!`, 'special');
+        await this._wait(900);
+        this.busy = false;
+        this.destroy();
+        this.onClose?.(0, false);
+        return;
+      }
+      this._log(`💨 Couldn't flee — the enemy blocks the way!`);
+    }
+
+    await this._wait(480);
+
+    if (this.enemy.curHp <= 0) {
+      await this._showVictory();
+      this.busy = false;
+      return;
+    }
+
+    // Enemy counter-attack
+    const isPower = Math.random() < 0.2;
+    let dmg = Math.max(1, this.enemy.atk + Math.floor(Math.random() * 6) - this.player.def);
+    if (isPower)        dmg = Math.floor(dmg * 1.8);
+    if (this.defending) dmg = Math.floor(dmg * 0.5);
+    this._log(
+      isPower
+        ? `${this.enemy.icon} ${this.enemy.name} unleashes a powerful blow for ${dmg} damage!`
+        : `${this.enemy.icon} ${this.enemy.name} attacks for ${dmg} damage!`,
+      'hit-player'
+    );
+    this._shake('b-player-icon');
+    this.player.curHp -= dmg;
+    this._updateBars();
+    this.defending = false;
+
+    await this._wait(400);
+
+    if (this.player.curHp <= 0) {
+      await this._showDefeat();
+      this.busy = false;
+      return;
+    }
+
+    this.busy = false;
+    this._setButtons(false);
+  }
+
+  async _showVictory() {
+    const [min, max]   = this.enemy.reward;
+    this._earnedRubies = min + Math.floor(Math.random() * (max - min + 1));
+    document.getElementById('battle-actions').style.display = 'none';
+    document.getElementById('battle-log').style.display    = 'none';
+    document.getElementById('b-ruby-amount').textContent   = this._earnedRubies;
+    document.getElementById('battle-reward').classList.add('show');
+  }
+
+  async _showDefeat() {
+    document.getElementById('battle-actions').style.display = 'none';
+    document.getElementById('battle-log').style.display    = 'none';
+    document.getElementById('battle-defeat').classList.add('show');
+  }
+
+  _wait(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+  destroy() {
+    if (this.overlay?.parentNode) this.overlay.remove();
+  }
+}
+
+const MARKETPLACE_CSS = (path) => `
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=IM+Fell+English:ital@0;1&display=swap');
+#marketplace-overlay{position:fixed;inset:0;z-index:99998;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.78);backdrop-filter:blur(3px);animation:mpFadeIn .25s ease}
+@keyframes mpFadeIn{from{opacity:0}to{opacity:1}}
+#marketplace-panel{width:min(980px,96vw);max-height:90vh;background:linear-gradient(160deg,#1a0e04 0%,#0d0804 100%);border:3px solid #8a5010;border-radius:16px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 0 60px rgba(200,120,20,.18),inset 0 0 80px rgba(0,0,0,.5);font-family:'IM Fell English',serif}
+#mp-header{display:flex;align-items:center;justify-content:space-between;padding:14px 22px;border-bottom:2px solid #5a3010;background:rgba(0,0,0,.4);gap:12px;flex-shrink:0}
+#mp-title{font-family:'Cinzel Decorative',cursive;color:#e8b030;font-size:18px;letter-spacing:2px;text-shadow:0 2px 10px rgba(0,0,0,.8)}
+#mp-title small{display:block;color:#a07838;font-size:10px;letter-spacing:3px;margin-top:2px;font-family:'IM Fell English',serif}
+#mp-hud{display:flex;align-items:center;gap:8px;background:rgba(0,0,0,.55);border:2px solid #6a3808;border-radius:30px;padding:6px 16px}
+#mp-ruby-icon{width:28px;height:28px;background-image:url('${path}/images/gamebuilder/sprites/ruby.png');background-size:contain;background-repeat:no-repeat;background-position:center;image-rendering:pixelated;filter:drop-shadow(0 0 4px rgba(255,80,80,.55))}
+#mp-ruby-count{font-family:'Cinzel Decorative',cursive;color:#f5c030;font-size:20px;min-width:40px;text-align:right}
+#mp-close-btn{background:rgba(120,30,10,.5);border:1.5px solid #8a3010;border-radius:8px;color:#e8a030;font-family:'Cinzel Decorative',cursive;font-size:11px;padding:7px 14px;cursor:pointer;letter-spacing:1px;transition:background .15s}
+#mp-close-btn:hover{background:rgba(200,60,20,.55);color:#fff}
+#mp-tabs{display:flex;gap:5px;padding:10px 22px 0;border-bottom:2px solid rgba(180,110,30,.3);flex-shrink:0;flex-wrap:wrap}
+.mp-tab{background:rgba(0,0,0,.4);border:1.5px solid rgba(180,110,30,.3);border-bottom:none;border-radius:7px 7px 0 0;color:#a07838;font-family:'Cinzel Decorative',cursive;font-size:10px;padding:7px 14px;cursor:pointer;letter-spacing:1px;transition:background .15s,color .15s}
+.mp-tab:hover:not(.active){background:rgba(160,100,20,.2);color:#e0a040}
+.mp-tab.active{background:rgba(140,80,10,.45);color:#f5c030;border-color:#9a6010;border-bottom-color:transparent}
+#mp-shopgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:14px;padding:18px 22px;overflow-y:auto;flex:1}
+#mp-shopgrid::-webkit-scrollbar{width:5px}#mp-shopgrid::-webkit-scrollbar-track{background:rgba(0,0,0,.3)}#mp-shopgrid::-webkit-scrollbar-thumb{background:#6a3808;border-radius:4px}
+.mp-card{background:linear-gradient(160deg,rgba(44,22,5,.94) 0%,rgba(24,10,2,.96) 100%);border:2px solid rgba(140,80,20,.45);border-radius:11px;padding:14px 12px;display:flex;flex-direction:column;gap:8px;position:relative;overflow:hidden;transition:border-color .2s,transform .15s}
+.mp-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(220,160,40,.05) 0%,transparent 65%);pointer-events:none}
+.mp-card:hover{border-color:rgba(220,150,30,.75);transform:translateY(-3px)}
+.mp-card.owned{border-color:rgba(50,170,70,.5)}
+.mp-card.owned::after{content:'OWNED';position:absolute;top:8px;right:8px;background:rgba(30,140,55,.85);color:#a0ffb0;font-family:'Cinzel Decorative',cursive;font-size:8px;padding:3px 7px;border-radius:4px;letter-spacing:1px}
+.mp-rarity{position:absolute;top:7px;left:9px;font-size:8px;font-family:'Cinzel Decorative',cursive;letter-spacing:1px;padding:2px 6px;border-radius:4px}
+.r-common{background:rgba(90,90,90,.5);color:#ccc}.r-uncommon{background:rgba(20,110,35,.5);color:#90ee90}.r-rare{background:rgba(25,55,150,.5);color:#80b0ff}.r-epic{background:rgba(90,15,130,.5);color:#dd90ff}.r-legendary{background:rgba(160,90,0,.5);color:#ffc060}
+.mp-icon{font-size:38px;text-align:center;padding-top:18px;line-height:1}
+.mp-name{font-family:'Cinzel Decorative',cursive;color:#e8b030;font-size:11px;text-align:center;letter-spacing:.5px}
+.mp-desc{color:rgba(210,175,115,.7);font-size:11px;font-style:italic;text-align:center;line-height:1.4}
+.mp-stats{display:flex;flex-wrap:wrap;gap:4px;justify-content:center}
+.mp-stat{background:rgba(0,0,0,.4);border:1px solid rgba(180,130,40,.2);border-radius:4px;padding:2px 7px;font-size:10px;color:#c49840}
+.mp-stat.pos{color:#78e878;border-color:rgba(60,180,60,.25)}.mp-stat.neg{color:#e87878;border-color:rgba(180,60,60,.25)}
+.mp-price{display:flex;align-items:center;justify-content:center;gap:5px;padding-top:4px;border-top:1px solid rgba(180,130,40,.15)}
+.mp-price-ruby{width:18px;height:18px;background-image:url('${path}/images/gamebuilder/sprites/ruby.png');background-size:contain;background-repeat:no-repeat;background-position:center;image-rendering:pixelated}
+.mp-price-num{font-family:'Cinzel Decorative',cursive;color:#f0c030;font-size:15px}
+.mp-buy-btn,.mp-sell-btn{width:100%;padding:7px;border-radius:6px;font-family:'Cinzel Decorative',cursive;font-size:10px;cursor:pointer;letter-spacing:1px;transition:background .15s,transform .1s}
+.mp-buy-btn{background:rgba(140,75,8,.7);border:1.5px solid #b07010;color:#f0c030}
+.mp-buy-btn:hover:not(:disabled){background:rgba(210,120,15,.75);color:#fff;transform:scale(1.02)}
+.mp-buy-btn:disabled{opacity:.38;cursor:not-allowed}
+.mp-sell-btn{background:rgba(15,70,25,.6);border:1.5px solid rgba(50,150,50,.5);color:#80ee80}
+.mp-sell-btn:hover{background:rgba(30,120,40,.7)}
+#mp-inv-panel{position:absolute;right:-360px;top:0;bottom:0;width:320px;background:linear-gradient(180deg,rgba(18,6,1,.99) 0%,rgba(8,4,1,1) 100%);border-left:3px solid #6a3808;z-index:10;padding:20px 16px;overflow-y:auto;transition:right .28s cubic-bezier(.4,0,.2,1)}
+#mp-inv-panel.open{right:0}
+#mp-inv-panel::-webkit-scrollbar{width:4px}#mp-inv-panel::-webkit-scrollbar-thumb{background:#5a2808;border-radius:3px}
+#mp-inv-title{font-family:'Cinzel Decorative',cursive;color:#e8b030;font-size:14px;text-align:center;padding-bottom:12px;border-bottom:1.5px solid rgba(180,110,30,.3);margin-bottom:14px;letter-spacing:2px}
+#mp-inv-close{float:right;background:none;border:none;color:#a07028;font-size:18px;cursor:pointer;margin-top:-3px;transition:color .15s}
+#mp-inv-close:hover{color:#f0c030}
+.mp-inv-empty{color:rgba(160,120,60,.45);font-style:italic;text-align:center;padding:20px 0;font-size:13px}
+.mp-inv-item{display:flex;align-items:center;gap:9px;padding:9px;border:1px solid rgba(180,120,40,.18);border-radius:7px;margin-bottom:7px;background:rgba(35,14,3,.6)}
+.mp-inv-icon{font-size:24px;flex-shrink:0;line-height:1}
+.mp-inv-name{font-family:'Cinzel Decorative',cursive;color:#e0a828;font-size:11px;letter-spacing:.5px}
+.mp-inv-meta{color:rgba(180,140,70,.65);font-size:10px;font-style:italic}
+#mp-inv-toggle{background:rgba(25,10,2,.97);border:2px solid #7a4010;border-radius:40px;padding:9px 18px;color:#e8b030;font-family:'Cinzel Decorative',cursive;font-size:11px;cursor:pointer;letter-spacing:1px;transition:background .15s;white-space:nowrap;flex-shrink:0}
+#mp-inv-toggle:hover{background:rgba(80,35,5,.97)}
+#mp-toast{position:absolute;bottom:24px;left:50%;transform:translateX(-50%) translateY(60px);background:rgba(18,8,2,.97);border:2px solid #7a4010;border-radius:9px;padding:11px 26px;color:#f0c030;font-family:'Cinzel Decorative',cursive;font-size:11px;z-index:9999;opacity:0;pointer-events:none;letter-spacing:1px;text-align:center;transition:transform .3s cubic-bezier(.34,1.56,.64,1),opacity .3s;white-space:nowrap}
+#mp-toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+#mp-toast.t-success{border-color:#30b050;color:#80ff90}
+#mp-toast.t-err{border-color:#c02020;color:#ff8888}
+`;
+
+class MarketplaceUI {
+  constructor(path, onClose, initialInventory = [], initialRubies = 0) {
+    this.path        = path;
+    this.onClose     = onClose;
+    this.coins       = initialRubies;
+    this.inventory   = [...initialInventory];
+    this.currentTab  = 'weapons';
+    this._toastTimer = null;
+    const old = document.getElementById('marketplace-style');
+    if (old) old.remove();
     this._injectCSS(path);
     this._buildDOM();
     this._bindEvents();
-    this._spawnCoins(6);
-    this._startAutoSpawn();
+    this._updateHUD();
     this._renderShop();
     this._renderInventory();
   }
 
-  // ── CSS ──
   _injectCSS(path) {
-    if (document.getElementById('marketplace-style')) return;
-    const style = document.createElement('style');
-    style.id    = 'marketplace-style';
-    style.textContent = MARKETPLACE_CSS(path);
-    document.head.appendChild(style);
+    const s = document.createElement('style');
+    s.id = 'marketplace-style';
+    s.textContent = MARKETPLACE_CSS(path);
+    document.head.appendChild(s);
   }
 
-  // ── DOM ──
   _buildDOM() {
     this.overlay = document.createElement('div');
     this.overlay.id = 'marketplace-overlay';
-
     this.overlay.innerHTML = `
       <div id="marketplace-panel">
-
-        <!-- Header -->
         <div id="mp-header">
-          <div id="mp-title">
-            ☠ The Black Market
-            <small>Port o' Thieves — Est. 1689</small>
-          </div>
-          <div id="mp-hud">
-            <div id="mp-ruby-icon"></div>
-            <div id="mp-ruby-count">0</div>
-          </div>
-          <button id="mp-inv-toggle">🎒 Bag <span id="mp-inv-badge" style="display:none; background:#b02020; color:#fff; border-radius:50%; padding:1px 5px; font-size:9px; margin-left:3px;"></span></button>
+          <div id="mp-title">☠ The Black Market<small>Port o' Thieves — Est. 1689</small></div>
+          <div id="mp-hud"><div id="mp-ruby-icon"></div><div id="mp-ruby-count">0</div></div>
+          <button id="mp-inv-toggle">🎒 Bag <span id="mp-inv-badge" style="display:none;background:#b02020;color:#fff;border-radius:50%;padding:1px 5px;font-size:9px;margin-left:3px;"></span></button>
           <button id="mp-close-btn">✕ Leave</button>
         </div>
-
-        <!-- Coin-collect bar REMOVED — rubies now spawn on the map -->
-
-        <!-- Tabs -->
         <div id="mp-tabs">
           <button class="mp-tab active" data-tab="weapons">⚔ Weapons</button>
           <button class="mp-tab" data-tab="armor">🛡 Armor</button>
@@ -460,40 +428,27 @@ class MarketplaceUI {
           <button class="mp-tab" data-tab="maps">🗺 Maps</button>
           <button class="mp-tab" data-tab="misc">🔮 Misc</button>
         </div>
-
-        <!-- Shop grid -->
         <div id="mp-shopgrid"></div>
-
-        <!-- Inventory slide-panel -->
         <div id="mp-inv-panel">
-          <div id="mp-inv-title">
-            <button id="mp-inv-close">✕</button>
-            McArchie's Bag
-          </div>
+          <div id="mp-inv-title"><button id="mp-inv-close">✕</button> McArchie's Bag</div>
           <div id="mp-invlist"></div>
         </div>
-
-        <!-- Toast -->
         <div id="mp-toast"></div>
       </div>
     `;
-
     document.body.appendChild(this.overlay);
-
-    // Cache refs
-    this.shopGrid    = document.getElementById('mp-shopgrid');
-    this.invList     = document.getElementById('mp-invlist');
-    this.invPanel    = document.getElementById('mp-inv-panel');
-    this.countEl     = document.getElementById('mp-ruby-count');
-    this.badge       = document.getElementById('mp-inv-badge');
-    this.toast       = document.getElementById('mp-toast');
+    this.shopGrid = document.getElementById('mp-shopgrid');
+    this.invList  = document.getElementById('mp-invlist');
+    this.invPanel = document.getElementById('mp-inv-panel');
+    this.countEl  = document.getElementById('mp-ruby-count');
+    this.badge    = document.getElementById('mp-inv-badge');
+    this.toast    = document.getElementById('mp-toast');
   }
 
   _bindEvents() {
     document.getElementById('mp-close-btn').addEventListener('click', () => this.destroy());
     document.getElementById('mp-inv-toggle').addEventListener('click', () => this._toggleInv());
     document.getElementById('mp-inv-close').addEventListener('click', () => this._toggleInv());
-
     document.querySelectorAll('.mp-tab').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.mp-tab').forEach(b => b.classList.remove('active'));
@@ -504,19 +459,15 @@ class MarketplaceUI {
     });
   }
 
-  // ── Coins (called by the game level when player walks over a ruby) ──
-  _updateHUD() {
-    this.countEl.textContent = this.coins;
-  }
+  _updateHUD() { this.countEl.textContent = this.coins; }
 
   addRuby(n = 1) {
     this.coins += n;
     this._updateHUD();
     this._renderShop();
-    this._toast(`+${n} Ruby!`, 'success');
+    this._toast(`+${n} ${n === 1 ? 'Ruby' : 'Rubies'}!`, 'success');
   }
 
-  // ── Shop ──
   _renderShop() {
     this.shopGrid.innerHTML = '';
     const items = SHOP_DATA[this.currentTab] || [];
@@ -525,76 +476,58 @@ class MarketplaceUI {
       const canBuy = this.coins >= item.price;
       const card   = document.createElement('div');
       card.className = 'mp-card' + (owned ? ' owned' : '');
-
       const statsHtml = item.stats.map(s =>
         `<span class="mp-stat ${s.startsWith('+') ? 'pos' : s.startsWith('-') ? 'neg' : ''}">${s}</span>`
       ).join('');
-
       const actionHtml = owned
         ? `<button class="mp-sell-btn" data-id="${item.id}">Sell for ${Math.floor(item.price * 0.5)} ◈</button>`
-        : `<button class="mp-buy-btn" data-id="${item.id}" ${canBuy ? '' : 'disabled'}>
-             ${canBuy ? 'Purchase' : 'Need ' + (item.price - this.coins) + ' more'}
-           </button>`;
-
+        : `<button class="mp-buy-btn" data-id="${item.id}" ${canBuy ? '' : 'disabled'}>${canBuy ? 'Purchase' : 'Need ' + (item.price - this.coins) + ' more'}</button>`;
       card.innerHTML = `
         <div class="mp-rarity r-${item.rarity}">${item.rarity.toUpperCase()}</div>
         <div class="mp-icon">${item.icon}</div>
         <div class="mp-name">${item.name}</div>
         <div class="mp-desc">${item.desc}</div>
         <div class="mp-stats">${statsHtml}</div>
-        <div class="mp-price">
-          <div class="mp-price-ruby"></div>
-          <div class="mp-price-num">${item.price}</div>
-        </div>
+        <div class="mp-price"><div class="mp-price-ruby"></div><div class="mp-price-num">${item.price}</div></div>
         ${actionHtml}
       `;
-
-      const btn = card.querySelector('[data-id]');
-      if (btn) {
-        btn.addEventListener('click', () => {
-          owned ? this._sell(item.id) : this._buy(item.id);
-        });
-      }
+      card.querySelector('[data-id]')?.addEventListener('click', () => {
+        owned ? this._sell(item.id) : this._buy(item.id);
+      });
       this.shopGrid.appendChild(card);
     });
   }
 
   _buy(id) {
     const item = this._findItem(id);
-    if (!item) return;
-    if (this.coins < item.price) { this._toast('Not enough rubies!', 'err'); return; }
+    if (!item || this.coins < item.price) { this._toast('Not enough rubies!', 'err'); return; }
     this.coins -= item.price;
     this.inventory.push(item);
-    this._updateHUD();
-    this._renderShop();
-    this._renderInventory();
+    this._updateHUD(); this._renderShop(); this._renderInventory();
     this._toast(`${item.icon} ${item.name} acquired!`, 'success');
   }
 
   _sell(id) {
-    const idx  = this.inventory.findIndex(i => i.id === id);
+    const idx = this.inventory.findIndex(i => i.id === id);
     if (idx < 0) return;
     const item = this.inventory[idx];
     const gain = Math.floor(item.price * 0.5);
     this.coins += gain;
     this.inventory.splice(idx, 1);
-    this._updateHUD();
-    this._renderShop();
-    this._renderInventory();
+    this._updateHUD(); this._renderShop(); this._renderInventory();
     this._toast(`Sold ${item.name} for ${gain} rubies.`);
   }
 
   _findItem(id) {
     for (const cat of Object.values(SHOP_DATA)) {
-      const found = cat.find(x => x.id === id);
-      if (found) return found;
+      const f = cat.find(x => x.id === id);
+      if (f) return f;
     }
     return null;
   }
 
-  // ── Inventory ──
   _renderInventory() {
-    this.badge.textContent = this.inventory.length;
+    this.badge.textContent   = this.inventory.length;
     this.badge.style.display = this.inventory.length ? 'inline' : 'none';
     if (!this.inventory.length) {
       this.invList.innerHTML = '<p class="mp-inv-empty">Thy satchel is empty, sailor.</p>';
@@ -603,19 +536,13 @@ class MarketplaceUI {
     this.invList.innerHTML = this.inventory.map(item => `
       <div class="mp-inv-item">
         <div class="mp-inv-icon">${item.icon}</div>
-        <div>
-          <div class="mp-inv-name">${item.name}</div>
-          <div class="mp-inv-meta">${item.rarity} · ${item.stats[0] || ''}</div>
-        </div>
+        <div><div class="mp-inv-name">${item.name}</div><div class="mp-inv-meta">${item.rarity} · ${item.stats[0] || ''}</div></div>
       </div>
     `).join('');
   }
 
-  _toggleInv() {
-    this.invPanel.classList.toggle('open');
-  }
+  _toggleInv() { this.invPanel.classList.toggle('open'); }
 
-  // ── Toast ──
   _toast(msg, type = '') {
     this.toast.textContent = msg;
     this.toast.className   = 'mp-toast show' + (type ? ` t-${type}` : '');
@@ -625,244 +552,263 @@ class MarketplaceUI {
     }, 2400);
   }
 
-  // ── Teardown ──
   destroy() {
-    if (this.overlay && this.overlay.parentNode) this.overlay.remove();
-    if (typeof this.onClose === 'function') this.onClose();
+    if (this.overlay?.parentNode) this.overlay.remove();
+    this.onClose?.();
   }
 
-  /** Returns whatever is in the player's inventory — useful for the game level */
   getInventory() { return [...this.inventory]; }
-
-  /** Returns current ruby count */
-  getRubies() { return this.coins; }
+  getRubies()    { return this.coins; }
 }
 
-// ── Game Level ────────────────────────────────────────────────────────────────
+
+class WorldEnemy {
+  constructor(enemyType, logicalX, logicalY, container) {
+    this.type     = enemyType;
+    this.defeated = false;
+    this.logicalX = logicalX;
+    this.logicalY = logicalY;
+    this._container = container;
+
+    this.el = document.createElement('div');
+    this.el.className = 'world-enemy';
+    this.el.innerHTML = `
+      <div class="world-enemy-icon">${enemyType.icon}</div>
+      <div class="world-enemy-label">${enemyType.name}</div>
+      <div class="world-enemy-hpbar"><div class="world-enemy-hpfill" style="width:100%"></div></div>
+      <div class="world-enemy-action"></div>
+    `;
+    this.hintEl = this.el.querySelector('.world-enemy-action');
+
+    // Append to body so position:fixed works from the viewport origin
+    document.body.appendChild(this.el);
+
+    // Place using screen coordinates derived from the container's rect
+    this._syncPosition();
+  }
+
+  // Convert logical game coords to fixed screen coords and apply them
+  _syncPosition() {
+    const rect = this._container.getBoundingClientRect();
+    const screenX = rect.left + this.logicalX;
+    const screenY = rect.top  + this.logicalY;
+    this.el.style.left = screenX + 'px';
+    this.el.style.top  = screenY + 'px';
+  }
+
+  // Call this after a resize so enemies stay on top of the correct spot
+  syncPosition() { this._syncPosition(); }
+
+  markDefeated() {
+    this.defeated = true;
+    this.hideHint();
+    this.el.classList.add('defeated');
+    setTimeout(() => this.el.remove(), 400);
+  }
+
+  showHint(text) {
+    if (!this.hintEl) return;
+    this.hintEl.textContent = text;
+    this.el.classList.add('has-hint');
+  }
+
+  hideHint() {
+    if (!this.hintEl) return;
+    this.el.classList.remove('has-hint');
+  }
+
+  remove() { this.el?.remove(); }
+}
+
 class MarketPirateGame {
   constructor(gameEnv) {
-    this.gameEnv   = gameEnv;
-    this.continue  = true;
-    this._ui       = null;
-    this._open     = false;
+    this.gameEnv = gameEnv;
 
     const width  = gameEnv.innerWidth;
     const height = gameEnv.innerHeight;
     const path   = gameEnv.path;
 
-    // ── Background ──
-    const image_data_marketplace = {
-      name: 'marketplace',
-      src:  path + '/images/MarketPlaceRPG.png',
-      pixels: { height: 580, width: 1038 }
-    };
-
-    // ── Player (McArchie, same config as MegaGame2) ──
-    const sprite_data_MA = {
-      id: 'McArchie',
-      src: path + '/images/gamebuilder/sprites/mcarchie.png',
-      SCALE_FACTOR: 8,
-      STEP_FACTOR: 1000,
-      ANIMATION_RATE: 30,
-      INIT_POSITION: { x: 150, y: height * 0.75 },
-      pixels: { height: 256, width: 256 },
-      orientation: { rows: 4, columns: 4 },
-      down:      { row: 0, start: 0, columns: 4 },
-      downRight: { row: 2, start: 0, columns: 3, rotate: Math.PI / 16 },
-      downLeft:  { row: 1, start: 0, columns: 3, rotate: -Math.PI / 16 },
-      right:     { row: 2, start: 0, columns: 4 },
-      left:      { row: 1, start: 0, columns: 4 },
-      up:        { row: 3, start: 0, columns: 4 },
-      upRight:   { row: 2, start: 0, columns: 3, rotate: -Math.PI / 16 },
-      upLeft:    { row: 1, start: 0, columns: 3, rotate: Math.PI / 16 },
-      hitbox: { widthPercentage: 0.45, heightPercentage: 0.2 },
-      keypress: { up: 87, left: 65, down: 83, right: 68 }
-    };
-
     this.classes = [
-      { class: GameEnvBackground, data: image_data_marketplace },
-      { class: Player,            data: sprite_data_MA },
+      { class: GameEnvBackground, data: {
+        name: 'marketplace',
+        src: path + '/images/MarketPlaceRPG.png',
+        pixels: { height: 580, width: 1038 }
+      }},
+      { class: Player, data: {
+        id: 'McArchie',
+        src: path + '/images/gamebuilder/sprites/mcarchie.png',
+        SCALE_FACTOR: 8, STEP_FACTOR: 1000, ANIMATION_RATE: 30,
+        INIT_POSITION: { x: 150, y: height * 0.75 },
+        pixels: { height: 256, width: 256 },
+        orientation: { rows: 4, columns: 4 },
+        down:      { row: 0, start: 0, columns: 4 },
+        downRight: { row: 2, start: 0, columns: 3, rotate: Math.PI / 16 },
+        downLeft:  { row: 1, start: 0, columns: 3, rotate: -Math.PI / 16 },
+        right:     { row: 2, start: 0, columns: 4 },
+        left:      { row: 1, start: 0, columns: 4 },
+        up:        { row: 3, start: 0, columns: 4 },
+        upRight:   { row: 2, start: 0, columns: 3, rotate: -Math.PI / 16 },
+        upLeft:    { row: 1, start: 0, columns: 3, rotate: Math.PI / 16 },
+        hitbox: { widthPercentage: 0.45, heightPercentage: 0.2 },
+        keypress: { up: 87, left: 65, down: 83, right: 68 }
+      }},
     ];
 
-    // ── Open-shop zone (center of map) ──
-    this.shopZone = {
-      x: width  * 0.38,
-      y: height * 0.30,
-      width:  width  * 0.24,
-      height: height * 0.40,
-    };
+    this._shopZoneRatios = { x: 0.38, y: 0.30, w: 0.24, h: 0.40 };
+    this.shopZone        = this._computeShopZone();
 
-    // ── Hint label ──
+    this._bagInventory = [];
+    this._totalRubies  = 0;
+    this._bankedRubies = 0;
+    this._battleOpen   = false;
+    this._battleUI     = null;
+    this._worldEnemies = [];
+    this._nearbyEnemy  = null;
+    this._open         = false;
+    this._ui           = null;
+
+    if (!document.getElementById('battle-style')) {
+      const s = document.createElement('style');
+      s.id = 'battle-style';
+      s.textContent = BATTLE_CSS;
+      document.head.appendChild(s);
+    }
+
     this.hintEl = document.createElement('div');
     Object.assign(this.hintEl.style, {
-      position: 'absolute',
-      bottom: '28px',
-      left: '50%',
-      transform: 'translateX(-50%)',
-      padding: '9px 18px',
-      background: 'rgba(0,0,0,0.76)',
-      color: '#ffd',
-      fontFamily: '"Cinzel Decorative", Courier, monospace',
-      fontSize: '13px',
-      border: '1.5px solid #c08030',
-      borderRadius: '7px',
-      zIndex: '9999',
-      display: 'none',
-      letterSpacing: '1px',
+      position: 'fixed', bottom: '28px', left: '50%', transform: 'translateX(-50%)',
+      padding: '9px 18px', background: 'rgba(0,0,0,.76)', color: '#ffd',
+      fontFamily: '"Cinzel Decorative",Courier,monospace', fontSize: '13px',
+      border: '1.5px solid #c08030', borderRadius: '7px', zIndex: '9999',
+      display: 'none', letterSpacing: '1px',
     });
-    this.hintEl.textContent = '⚓ Enter the market — press E to shop';
     document.body.appendChild(this.hintEl);
 
-    // ── E-key listener ──
     this._keyHandler = (e) => {
       if (e.key !== 'e' && e.key !== 'E') return;
-      const player = this.gameEnv.gameObjects?.find(o => o instanceof Player);
-      if (!player) return;
-      if (this._playerInBattleZone(player)) {
-        this._openBattleSublevel();
-      } else if (this._playerInZone(player)) {
-        this._openShop();
+      if (this._battleOpen || this._open) return;
+      if (this._nearbyEnemy) {
+        this._startBattle(this._nearbyEnemy);
+      } else {
+        const player = this.gameEnv.gameObjects?.find(o => o instanceof Player);
+        if (player && this._playerInZone(player)) this._openShop();
       }
     };
     window.addEventListener('keydown', this._keyHandler);
 
-    // ── Tux Dungeon gateway ──
-    this._bagInventory = [];
-    this._battleOpen = false;
-    this._battleArena = null;
-    this._bankedGems = 0;
-    this.battleZone = {
-      x: width * 0.08,
-      y: height * 0.58,
-      width: width * 0.18,
-      height: height * 0.22,
-    };
-    this._renderBattleEntrance();
+    this._spawnEnemies(8);
+
+    this._respawnTimer = setInterval(() => {
+      this._worldEnemies = this._worldEnemies.filter(e => !e.defeated);
+      if (this._worldEnemies.length < 4) this._spawnEnemies(3);
+    }, 25000);
   }
 
-  // ── Map ruby spawning ──
-  _spawnMapRubies(n = 1) {
-    const container = this.gameEnv.gameContainer || document.getElementById('gameContainer') || document.body;
-    const rect = container.getBoundingClientRect();
+  // ── helpers ──────────────────────────────────────────────────────────────
 
-    const margin = 48;
-    const availableWidth  = Math.max(0, rect.width  - margin * 2);
-    const availableHeight = Math.max(0, rect.height - margin * 2);
+  _computeShopZone() {
+    const w  = this.gameEnv.innerWidth;
+    const h  = this.gameEnv.innerHeight;
+    const rz = this._shopZoneRatios;
+    return { x: w * rz.x, y: h * rz.y, width: w * rz.w, height: h * rz.h };
+  }
+
+  _getContainer() {
+    // Prefer the canvas element so logical coords map directly to screen coords
+    return this.gameEnv.canvas
+      || document.getElementById('gameCanvas')
+      || this.gameEnv.gameContainer
+      || document.getElementById('gameContainer')
+      || document.body;
+  }
+
+  _randomEnemyType() {
+    const pool    = [];
+    const weights = { common: 50, uncommon: 30, rare: 13, epic: 7 };
+    ENEMY_TYPES.forEach(e => {
+      const w = weights[e.rarity] || 10;
+      for (let i = 0; i < w; i++) pool.push(e);
+    });
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+
+  _spawnEnemies(n) {
+    const container = this._getContainer();
+    const rect      = container.getBoundingClientRect();
+
+    // Use the container's actual rendered dimensions for spawn bounds
+    const width  = rect.width  || this.gameEnv.innerWidth;
+    const height = rect.height || this.gameEnv.innerHeight;
+
+    const margin = 80;
+    const shopCx = this.shopZone.x + this.shopZone.width  / 2;
+    const shopCy = this.shopZone.y + this.shopZone.height / 2;
 
     for (let i = 0; i < n; i++) {
-      // Random position inside the visible game container, with a small edge margin
-      const x = margin + Math.random() * availableWidth;
-      const y = margin + Math.random() * availableHeight;
-      const pageX = rect.left + x;
-      const pageY = rect.top  + y;
+      let lx, ly, tries = 0;
+      do {
+        lx = margin + Math.random() * Math.max(0, width  - margin * 2);
+        ly = margin + Math.random() * Math.max(0, height - margin * 2);
+        tries++;
+      } while (Math.hypot(lx - shopCx, ly - shopCy) < 130 && tries < 25);
 
-      const el = document.createElement('div');
-      el.className = 'mp-map-ruby';
-      el.style.left = pageX + 'px';
-      el.style.top  = pageY + 'px';
-      el.title = 'Ruby!';
-
-      // Also clickable directly
-      el.addEventListener('click', () => this._collectMapRuby(el));
-      document.body.appendChild(el);
-
-      this._mapRubies.push({ el, x, y });
+      this._worldEnemies.push(
+        new WorldEnemy(this._randomEnemyType(), lx, ly, container)
+      );
     }
   }
 
-  _collectMapRuby(el) {
-    const idx = this._mapRubies.findIndex(r => r.el === el);
-    if (idx < 0) return;
-    this._mapRubies.splice(idx, 1);
-    el.style.transform = 'scale(0) translateY(-12px)';
-    el.style.opacity   = '0';
-    setTimeout(() => el.remove(), 220);
-    // Credit ruby to open shop if any, otherwise bank it for when shop opens
-    if (this._ui) {
-      this._ui.addRuby(1);
-    } else {
-      this._bankedRubies = (this._bankedRubies || 0) + 1;
+  _playerLogicalPos() {
+    const player = this.gameEnv.gameObjects?.find(o => o instanceof Player);
+    if (!player?.position) return null;
+    return {
+      x: player.position.x + (player.width  || 0) * 0.5,
+      y: player.position.y + (player.height || 0) * 0.8,
+    };
+  }
+
+  _findNearbyEnemy(threshold = 120) {
+    const pos = this._playerLogicalPos();
+    if (!pos) return null;
+    let closest = null, best = threshold;
+    for (const e of this._worldEnemies) {
+      if (e.defeated) continue;
+      const dist = Math.hypot(pos.x - e.logicalX, pos.y - e.logicalY);
+      if (dist < best) { best = dist; closest = e; }
     }
+    return closest;
+  }
+
+  _startBattle(worldEnemy) {
+    if (this._battleOpen) return;
+    this._battleOpen  = true;
+    this._nearbyEnemy = null;
+    this._worldEnemies.forEach(e => e.hideHint());
+
+    this._battleUI = new BattleUI(worldEnemy.type, (rubyReward, wasDefeated) => {
+      this._battleOpen = false;
+      this._battleUI   = null;
+      if (!wasDefeated && rubyReward > 0) {
+        worldEnemy.markDefeated();
+        if (this._ui) {
+          this._ui.addRuby(rubyReward);
+        } else { 
+          this._bankedRubies += rubyReward;
+        }
+      }
+    });
   }
 
   _playerInZone(player) {
     if (!player?.position) return false;
+    const px = player.position.x + (player.width  || 0) * 0.5;
+    const py = player.position.y + (player.height || 0) * 0.5;
     return (
-      player.position.x + player.width  > this.shopZone.x &&
-      player.position.x                 < this.shopZone.x + this.shopZone.width &&
-      player.position.y + player.height > this.shopZone.y &&
-      player.position.y                 < this.shopZone.y + this.shopZone.height
+      px > this.shopZone.x &&
+      px < this.shopZone.x + this.shopZone.width  &&
+      py > this.shopZone.y &&
+      py < this.shopZone.y + this.shopZone.height
     );
-  }
-
-  _playerInBattleZone(player) {
-    if (!player?.position) return false;
-    return (
-      player.position.x + player.width  > this.battleZone.x &&
-      player.position.x                 < this.battleZone.x + this.battleZone.width &&
-      player.position.y + player.height > this.battleZone.y &&
-      player.position.y                 < this.battleZone.y + this.battleZone.height
-    );
-  }
-
-  _renderBattleEntrance() {
-    const container = this.gameEnv.gameContainer || document.getElementById('gameContainer') || document.body;
-    const rect = container.getBoundingClientRect();
-    if (!this._battleEntranceEl) {
-      this._battleEntranceEl = document.createElement('div');
-      this._battleEntranceEl.id = 'mp-battle-entrance';
-      document.body.appendChild(this._battleEntranceEl);
-    }
-    Object.assign(this._battleEntranceEl.style, {
-      position: 'absolute',
-      left: `${rect.left + this.battleZone.x}px`,
-      top: `${rect.top + this.battleZone.y}px`,
-      width: `${this.battleZone.width}px`,
-      height: `${this.battleZone.height}px`,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      textAlign: 'center',
-      padding: '12px',
-      background: 'radial-gradient(circle at 30% 20%, rgba(120,220,255,0.35), rgba(0,40,70,0.85))',
-      border: '2px solid rgba(120,200,255,0.8)',
-      borderRadius: '18px',
-      color: '#e8f8ff',
-      fontFamily: 'Courier, monospace',
-      fontSize: '12px',
-      lineHeight: '1.3',
-      zIndex: '9998',
-      pointerEvents: 'none',
-      textShadow: '0 0 6px rgba(0,120,180,0.8)',
-      boxShadow: '0 0 30px rgba(80,180,255,0.2)',
-    });
-    this._battleEntranceEl.innerHTML = `
-      <div style="display:flex;flex-direction:column;gap:6px;">
-        <strong style="font-size:14px;">Tux Den</strong>
-        <span style="font-size:11px;">Press E to enter</span>
-      </div>
-    `;
-  }
-
-  _openBattleSublevel() {
-    if (this._battleOpen || this._open) return;
-    this._battleOpen = true;
-    this._battleArena = new TuxBattleArena(
-      this.gameEnv.path,
-      (earned) => this._closeBattleSublevel(earned),
-      () => this._bagInventory
-    );
-  }
-
-  _closeBattleSublevel(gemsEarned) {
-    this._battleOpen = false;
-    this._battleArena = null;
-    if (!gemsEarned) return;
-    if (this._ui) {
-      this._ui.addRuby(gemsEarned);
-    } else {
-      this._bankedGems = (this._bankedGems || 0) + gemsEarned;
-    }
   }
 
   _openShop() {
@@ -870,18 +816,25 @@ class MarketPirateGame {
     const player = this.gameEnv.gameObjects?.find(o => o instanceof Player);
     if (!player || !this._playerInZone(player)) return;
     this._open = true;
-    this._ui = new MarketplaceUI(this.gameEnv.path, () => {
-      this._open = false;
-      this._ui   = null;
-    }, this._bagInventory);
-    // Deposit any gems picked up before the shop opened
-    if (this._bankedGems) {
-      this._ui.addRuby(this._bankedGems);
-      this._bankedGems = 0;
-    }
+
+    const startingRubies = this._totalRubies + this._bankedRubies;
+    this._bankedRubies   = 0;
+
+    this._ui = new MarketplaceUI(
+      this.gameEnv.path,
+      () => {
+        this._bagInventory = this._ui.getInventory();
+        this._totalRubies  = this._ui.getRubies();
+        this._open = false;
+        this._ui   = null;
+      },
+      this._bagInventory,
+      startingRubies
+    );
   }
 
-  // ── Game loop ──
+  // ── game-loop callbacks ───────────────────────────────────────────────────
+
   update() {
     if (!this.gameEnv?.gameObjects) return;
     const player = this.gameEnv.gameObjects.find(o => o instanceof Player);
@@ -889,34 +842,49 @@ class MarketPirateGame {
 
     if (this._open || this._battleOpen) {
       this.hintEl.style.display = 'none';
+      this._worldEnemies.forEach(e => e.hideHint());
       return;
     }
 
-    const nearShop = this._playerInZone(player);
-    const nearBattle = this._playerInBattleZone(player);
-    if (nearBattle) {
-      this.hintEl.textContent = '⚔ Enter the Tux Den — press E';
-      this.hintEl.style.display = 'block';
-    } else if (nearShop) {
-      this.hintEl.textContent = '⚓ Enter the market — press E to shop';
+    const nearby      = this._findNearbyEnemy(120);
+    this._nearbyEnemy = nearby;
+
+    this._worldEnemies.forEach(e => e.hideHint());
+
+    if (nearby) {
+      nearby.showHint(`⚔ Fight ${nearby.type.name} — press E`);
+      this.hintEl.style.display = 'none';
+    } else if (this._playerInZone(player)) {
+      this.hintEl.textContent   = '⚓ Enter the market — press E to shop';
       this.hintEl.style.display = 'block';
     } else {
       this.hintEl.style.display = 'none';
     }
   }
 
-  draw()   {}
+  draw() {}
 
   resize() {
-    this._renderBattleEntrance();
+    // Recompute shop zone
+    this.shopZone = this._computeShopZone();
+
+    // Re-sync all enemy screen positions now that the container has moved/resized
+    const container = this._getContainer();
+    this._worldEnemies.forEach(e => {
+      e._container = container;
+      e.syncPosition();
+    });
   }
 
   destroy() {
     window.removeEventListener('keydown', this._keyHandler);
-    if (this._battleEntranceEl?.parentNode) this._battleEntranceEl.remove();
-    if (this._battleArena) this._battleArena.destroy();
+    if (this._respawnTimer != null) clearInterval(this._respawnTimer);
+    const enemies = [...this._worldEnemies];
+    this._worldEnemies = [];
+    enemies.forEach(e => e.remove());
+    if (this._battleUI)          this._battleUI.destroy();
     if (this.hintEl?.parentNode) this.hintEl.remove();
-    if (this._ui) this._ui.destroy();
+    if (this._ui)                this._ui.destroy();
   }
 }
 
