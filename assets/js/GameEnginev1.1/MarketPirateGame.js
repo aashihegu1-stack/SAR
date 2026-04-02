@@ -3,7 +3,7 @@ import Player from './essentials/Player.js';
 
 const SHOP_DATA = {
   weapons: [
-    { id: 'w1', name: "Cutlass",              icon: '🗡',  desc: "A trusty pirate blade.",                    price: 25,  rarity: 'common',    stats: ['+12 ATK', '+5 SPD'] },
+    { id: 'w1', name: "Wooden Sword",              icon: '🗡',  desc: "A trusty pirate blade.",                    price: 25,  rarity: 'common',    stats: ['+12 ATK', '+5 SPD'] },
     { id: 'w2', name: "Flintlock Pistol",     icon: '🔫', desc: "One shot. Make it count.",                  price: 55,  rarity: 'uncommon',  stats: ['+28 ATK', '-8 SPD', 'Ranged'] },
     { id: 'w3', name: "Blackbread's Saber",   icon: '⚔',  desc: "Stolen from the feared pirate himself.",   price: 130, rarity: 'rare',      stats: ['+40 ATK', '+15 SPD', 'Cursed'] },
     { id: 'w4', name: "Trident of Davy",      icon: '🔱', desc: "Forged in the ocean abyss.",               price: 280, rarity: 'epic',      stats: ['+65 ATK', 'Water DMG', '+20 DEF'] },
@@ -17,11 +17,11 @@ const SHOP_DATA = {
     { id: 'a5', name: "Poseidon's Plate",     icon: '🌊', desc: "The ocean itself yields to its wearer.",   price: 480, rarity: 'legendary', stats: ['+80 DEF', 'Sea Ward', 'Breathe Water'] },
   ],
   potions: [
-    { id: 'p1', name: "Grog Flask",           icon: '🍺', desc: "What doesn't kill ye makes ye stronger.",  price: 10,  rarity: 'common',    stats: ['+20 HP', 'Stackable'] },
-    { id: 'p2', name: "Sea Witch's Brew",     icon: '🧪', desc: "Green and bubbling. Probably fine.",       price: 30,  rarity: 'uncommon',  stats: ['+50 HP', 'Random Buff'] },
-    { id: 'p3', name: "Mermaid's Tears",      icon: '💧', desc: "Rare and potent healing essence.",         price: 80,  rarity: 'rare',      stats: ['+120 HP', 'Cure Poison'] },
+    { id: 'p1', name: "Monke Drink",           icon: '🍺', desc: "What doesn't kill ye makes ye stronger.",  price: 10,  rarity: 'common',    stats: ['+20 HP', 'Stackable'] },
+    { id: 'p2', name: "Sea Witch's Brew",     icon: '🧪', desc: "Green and bubbling. Probably fine. No worries",       price: 30,  rarity: 'uncommon',  stats: ['+50 HP', 'Random Buff'] },
+    { id: 'p3', name: "Mermaid's Tears",      icon: '💧', desc: "Rare and potent healing essence. Hard to get.",         price: 80,  rarity: 'rare',      stats: ['+120 HP', 'Cure Poison'] },
     { id: 'p4', name: "Kraken Ink",           icon: '🦑', desc: "Grants brief invincibility + ink cloud.",  price: 180, rarity: 'epic',      stats: ['Invincible 10s', 'Blind Foes'] },
-    { id: 'p5', name: "Elixir of Eternity",   icon: '✨', desc: "A single drop of liquid immortality.",     price: 420, rarity: 'legendary', stats: ['Full HP', 'Revive', '+50 All Stats'] },
+    { id: 'p5', name: "Elixir of Eternity",   icon: '⚔️', desc: "A single drop of liquid immortality.",     price: 420, rarity: 'legendary', stats: ['Full HP', 'Revive', '+50 All Stats'] },
   ],
   maps: [
     { id: 'm1', name: "Torn Map Fragment",    icon: '📄', desc: "A piece of a greater treasure map.",       price: 15,  rarity: 'common',    stats: ['Fragment 1/4'] },
@@ -31,7 +31,7 @@ const SHOP_DATA = {
     { id: 'm5', name: "Map of All Seas",      icon: '🧭', desc: "Reveals every treasure hoard.",            price: 600, rarity: 'legendary', stats: ['Global', 'All Secrets', 'Legendary Loot'] },
   ],
   misc: [
-    { id: 'x1', name: "Ship's Parrot",        icon: '🦜', desc: "Loudmouthed but loyal.",                   price: 35,  rarity: 'uncommon',  stats: ['+Ambush Warn', 'Companion'] },
+    { id: 'x1', name: "Ship's Parrot",        icon: '🦜', desc: "Loudmouthed but loyal. Will help you out only if you feed him.",                   price: 35,  rarity: 'uncommon',  stats: ['+Ambush Warn', 'Companion'] },
     { id: 'x2', name: "Spy Glass",            icon: '🔭', desc: "See enemies before they see you.",         price: 50,  rarity: 'uncommon',  stats: ['+200 View', '+Scout'] },
     { id: 'x3', name: "Haunted Lantern",      icon: '🏮', desc: "Lights the way in cursed darkness.",       price: 90,  rarity: 'rare',      stats: ['Night Vision', 'Ghost Talk'] },
     { id: 'x4', name: "Bottled Typhoon",      icon: '🌀', desc: "Unleash a storm upon thine enemies.",      price: 200, rarity: 'epic',      stats: ['AOE Storm', '1-Use'] },
@@ -41,11 +41,11 @@ const SHOP_DATA = {
 
 const ENEMY_TYPES = [
   { id: 'skeleton', name: 'Skeleton Guard',  icon: '💀', hp: 30,  atk: 6,  def: 2,  reward: [3,  6],  rarity: 'common'   },
-  { id: 'rat',      name: 'Giant Wharf Rat', icon: '🐀', hp: 20,  atk: 4,  def: 1,  reward: [2,  4],  rarity: 'common'   },
-  { id: 'ghost',    name: 'Ship Ghost',      icon: '👻', hp: 45,  atk: 9,  def: 4,  reward: [6,  10], rarity: 'uncommon' },
+  { id: 'rat',      name: 'Giant Rat', icon: '🐀', hp: 20,  atk: 4,  def: 1,  reward: [2,  4],  rarity: 'common'   },
+  { id: 'ghost',    name: 'Ghost Sailor',      icon: '👻', hp: 45,  atk: 9,  def: 4,  reward: [6,  10], rarity: 'uncommon' },
   { id: 'pirate',   name: 'Rival Pirate',    icon: '🏴‍☠️', hp: 55,  atk: 12, def: 5,  reward: [8,  14], rarity: 'uncommon' },
-  { id: 'kraken',   name: 'Baby Kraken',     icon: '🦑', hp: 80,  atk: 16, def: 8,  reward: [15, 22], rarity: 'rare'     },
-  { id: 'davy',     name: "Davy's Wrath",    icon: '⚓', hp: 120, atk: 22, def: 12, reward: [25, 35], rarity: 'epic'     },
+  { id: 'kraken',   name: 'Baby Fire Bird',     icon: '🐦‍🔥', hp: 80,  atk: 16, def: 8,  reward: [15, 22], rarity: 'rare'     },
+  { id: 'davy',     name: "Luffy the Monke's Wrath",    icon: '⚓', hp: 120, atk: 22, def: 12, reward: [25, 35], rarity: 'epic'     },
 ];
 
 const BATTLE_CSS = `
