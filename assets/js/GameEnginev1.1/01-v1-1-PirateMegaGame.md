@@ -14,12 +14,12 @@ permalink: /gamify/PirateMegaGame
     import Core from "{{site.baseurl}}/assets/js/GameEnginev1.1/essentials/Game.js";
     import GameControl from "{{site.baseurl}}/assets/js/GameEnginev1.1/essentials/GameControl.js";
     import GameLevelPirateHunt from "{{site.baseurl}}/assets/js/GameEnginev1.1/GameLevelPirateHuntV1.js";
-    import GameLevelPirateMegaGame2 from "{{site.baseurl}}/assets/js/GameEnginev1.1/GameLevelPirateMegaGame2V1.js";
+    import Refurbishing from "{{site.baseurl}}/assets/js/GameEnginev1.1/Refurbishing.js";
     import MarketPirateGame from "{{site.baseurl}}/assets/js/GameEnginev1.1/MarketPirateGame.js";
     import { pythonURI, javaURI, fetchOptions } from "{{site.baseurl}}/assets/js/api/config.js";
    
 
-    const gameLevelClasses = [MarketPirateGame, GameLevelPirateHunt, GameLevelPirateMegaGame2];
+    const gameLevelClasses = [MarketPirateGame, GameLevelPirateHunt, Refurbishing];
 
     // Web Server Environment data
     const environment = {
