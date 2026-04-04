@@ -1,5 +1,6 @@
 import GameEnvBackground from './essentials/GameEnvBackground.js';
 import Player from './essentials/Player.js';
+import Barrier from './essentials/Barrier.js';
 
 const SHOP_DATA = {
   weapons: [
@@ -727,7 +728,7 @@ class MarketPirateGame {
         id: 'McArchie',
         src: path + '/images/gamebuilder/sprites/mcarchie.png',
         SCALE_FACTOR: 8, STEP_FACTOR: 1000, ANIMATION_RATE: 30,
-        INIT_POSITION: { x: 150, y: height * 0.75 },
+        INIT_POSITION: { x: 150, y: height * 0.07 },
         pixels: { height: 256, width: 256 },
         orientation: { rows: 4, columns: 4 },
         down:      { row: 0, start: 0, columns: 4 },
@@ -745,6 +746,46 @@ class MarketPirateGame {
 
     this._shopZoneRatios = { x: 0.50, y: 0.55, w: 0.24, h: 0.40 };
     this.shopZone        = this._computeShopZone();
+
+    this.barriers = [
+      new Barrier({ x: 0, y: 0, width: width * 0.28, height: height * 0.70, visible: false }, gameEnv),
+      new Barrier({ x: width * 0.38, y: height * 0.27, width: width * 0.22, height: height * 0.37, visible: false }, gameEnv),
+      new Barrier({ x: width * 0.64, y: 0, width: width * 0.33, height: height * 0.22, visible: false }, gameEnv),
+      new Barrier({ x: width * 0.75, y: height * 0.55, width: width * 0.22, height: height * 0.37, visible: false }, gameEnv),
+    ];
+
+    // Add barriers to game environment
+    this.barriers.forEach(barrier => {
+      if (this.gameEnv.gameObjects) {
+        this.gameEnv.gameObjects.push(barrier);
+      }
+    });
+
+    // Disable the score/leaderboard display
+    const hideLeaderboard = () => {
+      const leaderboardContainer = document.getElementById('leaderboard-container');
+      if (leaderboardContainer) {
+        leaderboardContainer.style.display = 'none';
+      }
+      const scoreCounter = document.getElementById('leaderboard-current-score');
+      if (scoreCounter) {
+        scoreCounter.style.display = 'none';
+      }
+      const coinsPreview = document.getElementById('leaderboard-coins-preview');
+      if (coinsPreview) {
+        coinsPreview.style.display = 'none';
+      }
+      const leaderboardPreview = document.getElementById('leaderboard-preview');
+      if (leaderboardPreview) {
+        leaderboardPreview.style.display = 'none';
+      }
+    };
+    
+    // Hide immediately and also after a delay in case it's created later
+    hideLeaderboard();
+    setTimeout(hideLeaderboard, 100);
+    setTimeout(hideLeaderboard, 500);
+    setTimeout(hideLeaderboard, 1000);
 
     this._bagInventory = [];
     this._totalRubies  = 0;
@@ -877,12 +918,19 @@ And if ye hear Blackbread's boots behind ye… don't look back.<br><br>
         lx = margin + Math.random() * Math.max(0, width  - margin * 2);
         ly = margin + Math.random() * Math.max(0, height - margin * 2);
         tries++;
-      } while (Math.hypot(lx - shopCx, ly - shopCy) < 130 && tries < 25);
+      } while ((Math.hypot(lx - shopCx, ly - shopCy) < 130 || this._isInBarrier(lx, ly)) && tries < 25);
 
       this._worldEnemies.push(
         new WorldEnemy(this._randomEnemyType(), lx, ly, container)
       );
     }
+  }
+
+  _isInBarrier(x, y) {
+    return this.barriers.some(barrier => {
+      return x >= barrier.x && x <= barrier.x + barrier.width &&
+             y >= barrier.y && y <= barrier.y + barrier.height;
+    });
   }
 
   _playerLogicalPos() {
@@ -1009,11 +1057,22 @@ And if ye hear Blackbread's boots behind ye… don't look back.<br><br>
     const enemies = [...this._worldEnemies];
     this._worldEnemies = [];
     enemies.forEach(e => e.remove());
+    // Remove barriers from game environment
+    if (this.barriers && this.gameEnv.gameObjects) {
+      this.barriers.forEach(barrier => {
+        const index = this.gameEnv.gameObjects.indexOf(barrier);
+        if (index > -1) {
+          this.gameEnv.gameObjects.splice(index, 1);
+        }
+      });
+    }
     if (this._battleUI)          this._battleUI.destroy();
     if (this.hintEl?.parentNode) this.hintEl.remove();
     if (this._instructions)      this._instructions.destroy();
     if (this._ui)                this._ui.destroy();
   }
 }
+
+
 
 export default MarketPirateGame;
