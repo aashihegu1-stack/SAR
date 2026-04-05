@@ -4,40 +4,65 @@ import Barrier from './essentials/Barrier.js';
 
 const SHOP_DATA = {
   weapons: [
-    { id: 'w1', name: "Wooden Sword",              icon: '🗡',  desc: "A trusty pirate blade.",                    price: 25,  rarity: 'common',    stats: ['+12 ATK', '+5 SPD'] },
-    { id: 'w2', name: "Flintlock Pistol",     icon: '🔫', desc: "One shot. Make it count.",                  price: 55,  rarity: 'uncommon',  stats: ['+28 ATK', '-8 SPD', 'Ranged'] },
-    { id: 'w3', name: "Blackbread's Saber",   icon: '⚔',  desc: "Stolen from the feared pirate himself.",   price: 130, rarity: 'rare',      stats: ['+40 ATK', '+15 SPD', 'Cursed'] },
-    { id: 'w4', name: "Trident of Davy",      icon: '🔱', desc: "Forged in the ocean abyss.",               price: 280, rarity: 'epic',      stats: ['+65 ATK', 'Water DMG', '+20 DEF'] },
-    { id: 'w5', name: "The Golden Hook",      icon: '🪝',  desc: "A hook that drags fate itself.",           price: 500, rarity: 'legendary', stats: ['+90 ATK', 'Fate Bind', '+30 SPD'] },
+    { id: 'w1', name: "Wooden Dagger",         icon: '🗡️',  desc: "A trusty pirate blade.",                    price: 25,  rarity: 'common',    stats: ['+12 ATK', '+5 SPD'] },
+    { id: 'w2', name: "Knockback Flint",     icon: '🏹', desc: "Trusty old pistol. Cold as Ice.",                  price: 55,  rarity: 'uncommon',  stats: ['+28 ATK', '-8 SPD', 'Ranged'] },
+    { id: 'w3', name: "Shell of Sirens",   icon: '🐚',  desc: "Harvested from the depths.",                 price: 130, rarity: 'rare',      stats: ['+40 ATK', '+15 SPD', 'Cursed'] },
+    { id: 'w5', name: "Captain's Hook",      icon: '🪝',  desc: "From Captain Hook himself.",                price: 500, rarity: 'legendary', stats: ['+90 ATK', 'Fate Bind', '+30 SPD'] },
+    { id: 'w6', name: "Coral Cutlass",        icon: '🪸', desc: "Grown from reefbone, sharp as betrayal.",    price: 95, rarity: 'rare', stats:['+32 ATK', '+10 SPD', 'Bleed'] },
+    { id: 'w7', name: "Stormcaller Harpoon", icon: '⚡', desc: "Crackles with bottled lightning.",           price: 210, rarity: 'epic', stats:      ['+55 ATK', 'Shock DMG', 'Stun Chance'] },
+    { id: 'w8', name: "Blackbread's Boomstick", icon: '🧨', desc: "Illegal in 7 ports. Fun in all of them.", price: 360, rarity: 'legendary', stats: ['+75 ATK', 'Explosive Shot', '-10 SPD'] },
   ],
   armor: [
-    { id: 'a1', name: "Sailor's Coat",        icon: '🧥', desc: "Worn, smells of salt and adventure.",      price: 20,  rarity: 'common',    stats: ['+8 DEF', '+3 SPD'] },
-    { id: 'a2', name: "Leather Vest",         icon: '🦺', desc: "Supple hide from a kraken's side.",        price: 45,  rarity: 'uncommon',  stats: ['+18 DEF', '-2 SPD'] },
-    { id: 'a3', name: "Iron Breastplate",     icon: '🛡',  desc: "Dented but dependable.",                   price: 100, rarity: 'rare',      stats: ['+35 DEF', '-10 SPD'] },
-    { id: 'a4', name: "Ghost Ship Armor",     icon: '👻', desc: "Phased from another realm.",               price: 250, rarity: 'epic',      stats: ['+55 DEF', 'Ethereal', '+10 SPD'] },
+    { id: 'a1', name: "Sailor's Cape",        icon: '🧥', desc: "Stolen off Skull Island.",      price: 20,  rarity: 'common',    stats: ['+8 DEF', '+3 SPD'] },
+    { id: 'a2', name: "Enchanted Vest",         icon: '🥼', desc: "Echanted by a powerful sorceress.",        price: 45,  rarity: 'uncommon',  stats: ['+18 DEF', '-2 SPD'] },
+    { id: 'a3', name: "Knight's Armor",     icon: '🤺',  desc: "Dented but dependable.",                   price: 100, rarity: 'rare',      stats: ['+35 DEF', '-10 SPD'] },
+    { id: 'a4', name: "Ghost Shield",     icon: '🛡️', desc: "Phased from another realm.",               price: 250, rarity: 'epic',      stats: ['+55 DEF', 'Ethereal', '+10 SPD'] },
     { id: 'a5', name: "Poseidon's Plate",     icon: '🌊', desc: "The ocean itself yields to its wearer.",   price: 480, rarity: 'legendary', stats: ['+80 DEF', 'Sea Ward', 'Breathe Water'] },
+    { id: 'a6', name: "Barnacle Shell Vest", icon: '🐚', desc: "Heavy, crusty, and weirdly protective.", price: 70, rarity: 'uncommon', stats: ['+22 DEF', '-5 SPD'] },
+    { id: 'a7', name: "Siren’s Shroud", icon: '🧜‍♀️', desc: "Woven from sea‑silk. Whispers to you.", price: 190, rarity: 'epic', stats: ['+40 DEF', '+20 SPD', 'Charm Resist'] },
+    { id: 'a8', name: "Captain’s Cursed Coat", icon: '☠️', desc: "Blackbread wore this once. It remembers.", price: 520, rarity: 'legendary', stats: ['+70 DEF', 'Fear Aura', '+15 SPD'] },
   ],
   potions: [
-    { id: 'p1', name: "Monke Drink",           icon: '🍺', desc: "What doesn't kill ye makes ye stronger.",  price: 10,  rarity: 'common',    stats: ['+20 HP', 'Stackable'] },
+    { id: 'p1', name: "Amrit of a Thousand Battles",           icon: '🍺', desc: "What doesn't kill ye makes ye stronger.",  price: 10,  rarity: 'common',    stats: ['+20 HP', 'Stackable'] },
     { id: 'p2', name: "Sea Witch's Brew",     icon: '🧪', desc: "Green and bubbling. Probably fine. No worries",       price: 30,  rarity: 'uncommon',  stats: ['+50 HP', 'Random Buff'] },
     { id: 'p3', name: "Mermaid's Tears",      icon: '💧', desc: "Rare and potent healing essence. Hard to get.",         price: 80,  rarity: 'rare',      stats: ['+120 HP', 'Cure Poison'] },
-    { id: 'p4', name: "Kraken Ink",           icon: '🦑', desc: "Grants brief invincibility + ink cloud.",  price: 180, rarity: 'epic',      stats: ['Invincible 10s', 'Blind Foes'] },
+    { id: 'p4', name: "Ink of the Squid",           icon: '🦑', desc: "Grants brief invincibility + ink cloud.",  price: 180, rarity: 'epic',      stats: ['Invincible 10s', 'Blind Foes'] },
     { id: 'p5', name: "Elixir of Eternity",   icon: '⚔️', desc: "A single drop of liquid immortality.",     price: 420, rarity: 'legendary', stats: ['Full HP', 'Revive', '+50 All Stats'] },
+    { id: 'p6', name: "Sharkblood Tonic", icon: '🦈', desc: "Gives ye the bite of a predator.", price: 45, rarity: 'uncommon', stats: ['+30 ATK', 'Berserk 5s'] },
+    { id: 'p7', name: "Ghost Rum", icon: '🥃', desc: "You phase through danger. Also walls.", price: 150, rarity: 'epic', stats: ['Ethereal 8s', '+10 SPD'] },
+    { id: 'p8', name: "Heart of the Leviathan", icon: '💙', desc: "A drop of ocean godhood.", price: 500, rarity: 'legendary', stats: ['+200 HP', 'Water Immunity', '+25 All Stats'] },
   ],
   maps: [
-    { id: 'm1', name: "Torn Map Fragment",    icon: '📄', desc: "A piece of a greater treasure map.",       price: 15,  rarity: 'common',    stats: ['Fragment 1/4'] },
+    { id: 'm1', name: "Torn Map Fragment",    icon: '📄', desc: "A piece of a greater treasure map. Maybe you collect it?",       price: 15,  rarity: 'common',    stats: ['Fragment 1/4'] },
     { id: 'm2', name: "Isle of Skulls Map",   icon: '🗺',  desc: "Marks a hidden cove full of gold.",        price: 60,  rarity: 'uncommon',  stats: ['+Gold Finder', 'Region: North'] },
     { id: 'm3', name: "Sunken City Chart",    icon: '🌐', desc: "The drowned city of Atlantis awaits.",     price: 140, rarity: 'rare',      stats: ['Depth: 900ft', 'Rare Loot'] },
     { id: 'm4', name: "Blackbread's Secret",  icon: '☠',  desc: "His most guarded route.",                  price: 320, rarity: 'epic',      stats: ['Boss Route', 'All Ports'] },
     { id: 'm5', name: "Map of All Seas",      icon: '🧭', desc: "Reveals every treasure hoard.",            price: 600, rarity: 'legendary', stats: ['Global', 'All Secrets', 'Legendary Loot'] },
+    { id: 'm6', name: "Fogbound Passage Map", icon: '🌫️', desc: "Leads through a maze of living mist.", price: 85, rarity: 'rare', stats: ['+Fog Vision', 'Hidden Paths'] },
+    { id: 'm7', name: "Chart of the Forgotten Fleet", icon: '🚢', desc: "Shows where ghost ships drift.", price: 260, rarity: 'epic', stats: ['Ghost Encounters', 'Rare Loot'] },
+    { id: 'm8', name: "Atlas of the Deep Gods", icon: '📘', desc: "Forbidden knowledge of the abyss.", price: 700, rarity: 'legendary', stats: ['All Seas', 'Mythic Routes', '???'] },
   ],
   misc: [
-    { id: 'x1', name: "Ship's Parrot",        icon: '🦜', desc: "Loudmouthed but loyal. Will help you out only if you feed him.",                   price: 35,  rarity: 'uncommon',  stats: ['+Ambush Warn', 'Companion'] },
+    { id: 'x1', name: "Ship's Parrot",        icon: '🦜', desc: "Loudmouthed but loyal. Will help you sometimes.",                   price: 35,  rarity: 'uncommon',  stats: ['+Ambush Warn', 'Companion'] },
     { id: 'x2', name: "Spy Glass",            icon: '🔭', desc: "See enemies before they see you.",         price: 50,  rarity: 'uncommon',  stats: ['+200 View', '+Scout'] },
     { id: 'x3', name: "Haunted Lantern",      icon: '🏮', desc: "Lights the way in cursed darkness.",       price: 90,  rarity: 'rare',      stats: ['Night Vision', 'Ghost Talk'] },
     { id: 'x4', name: "Bottled Typhoon",      icon: '🌀', desc: "Unleash a storm upon thine enemies.",      price: 200, rarity: 'epic',      stats: ['AOE Storm', '1-Use'] },
-    { id: 'x5', name: "Immortal's Compass",   icon: '⭐', desc: "Always points to what you desire most.",   price: 450, rarity: 'legendary', stats: ['Desire Track', 'Never Lost'] },
+    { id: 'x5', name: "Crab Butler", icon: '🦀', desc: "Carries your stuff. Judgemental.", price: 60, rarity: 'uncommon', stats: ['+Inventory', 'Auto‑Loot'] },
+    { id: 'x6', name: "Cursed Hourglass", icon: '⏳', desc: "Turn back time… at a cost.", price: 180, rarity: 'rare', stats: ['Rewind 5s', 'Random Debuff'] },
+    { id: 'x7', name: "Pocket Kraken", icon: '🐙', desc: "A tiny kraken that hates everyone but you.", price: 420, rarity: 'legendary', stats: ['Summon Tentacles', 'Fear Nearby Foes'] },
+    { id: 'x8', name: "Immortal's Compass",   icon: '⭐', desc: "Always points to what you desire most.",   price: 450, rarity: 'legendary', stats: ['Desire Track', 'Never Lost'] },
   ],
+  escape: [
+    { id: 'e1', name: "Rowboat",              icon: '🛶', desc: "A small boat to escape on. Not very fast.", price: 10, rarity: 'common', stats: ['Escape Vehicle'] },
+    { id: 'e2', name: "Raft",                 icon: '🪵', desc: "Better than a rowboat, but still not great.", price: 10, rarity: 'common', stats: ['Escape Vehicle'] },
+    { id: 'e3', name: "Sailboat",             icon: '⛵', desc: "A decent boat for escaping. Moderate speed.", price: 20, rarity: 'uncommon', stats: ['Escape Vehicle'] },
+    { id: 'e4', name: "Galleon Escape Pod",   icon: '🚤', desc: "A high-speed escape pod from a galleon.", price: 50, rarity: 'epic', stats: ['Escape Vehicle'] },
+    { id: 'e5', name: "Barrel Boat", icon: '🛢️', desc: "A leaky barrel with dreams of being a ship.", price: 10, rarity: 'common', stats: ['Escape Vehicle'] },
+    { id: 'e6', name: "Turtle Taxi",  icon: '🐢', desc: "Slow… but determined. And surprisingly loyal.", price: 20, rarity: 'uncommon', stats: ['Escape Vehicle'] },
+    { id: 'e7', name: "Pirate Glider", icon: '🪂', desc: "Ride the winds like a drunken albatross.", price: 50, rarity: 'rare', stats: ['Escape Vehicle'] },
+    { id: 'e8', name: "Ghost Ship Fragment", icon: '👻🚢', desc: "A haunted sliver of a forgotten vessel. Moves on its own.", price: 50, rarity: 'epic', stats: ['Escape Vehicle'] },
+    { id: 'e9', name: "Sea Serpent Mount", icon: '🐉', desc: "Tamed? No. Cooperative? Sometimes.", price: 70, rarity: 'legendary', stats: ['Escape Vehicle'] },
+    ],
 };
 
 const ENEMY_TYPES = [
@@ -357,7 +382,7 @@ const MARKETPLACE_CSS = (path) => `
 .mp-tab.active{background:rgba(140,80,10,.45);color:#f5c030;border-color:#9a6010;border-bottom-color:transparent}
 #mp-shopgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:14px;padding:18px 22px;overflow-y:auto;flex:1}
 #mp-shopgrid::-webkit-scrollbar{width:5px}#mp-shopgrid::-webkit-scrollbar-track{background:rgba(0,0,0,.3)}#mp-shopgrid::-webkit-scrollbar-thumb{background:#6a3808;border-radius:4px}
-.mp-card{background:linear-gradient(160deg,rgba(44,22,5,.94) 0%,rgba(24,10,2,.96) 100%);border:2px solid rgba(140,80,20,.45);border-radius:11px;padding:14px 12px;display:flex;flex-direction:column;gap:8px;position:relative;overflow:hidden;transition:border-color .2s,transform .15s}
+.mp-card{background:linear-gradient(160deg,rgba(44,22,5,.94) 0%,rgba(24,10,2,.96) 100%);border:2px solid rgba(140,80,20,.45);border-radius:11px;padding:14px 12px;display:flex;flex-direction:column;gap:8px;position:relative;transition:border-color .2s,transform .15s}
 .mp-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(220,160,40,.05) 0%,transparent 65%);pointer-events:none}
 .mp-card:hover{border-color:rgba(220,150,30,.75);transform:translateY(-3px)}
 .mp-card.owned{border-color:rgba(50,170,70,.5)}
@@ -366,7 +391,7 @@ const MARKETPLACE_CSS = (path) => `
 .r-common{background:rgba(90,90,90,.5);color:#ccc}.r-uncommon{background:rgba(20,110,35,.5);color:#90ee90}.r-rare{background:rgba(25,55,150,.5);color:#80b0ff}.r-epic{background:rgba(90,15,130,.5);color:#dd90ff}.r-legendary{background:rgba(160,90,0,.5);color:#ffc060}
 .mp-icon{font-size:38px;text-align:center;padding-top:18px;line-height:1}
 .mp-name{font-family:'Cinzel Decorative',cursive;color:#e8b030;font-size:11px;text-align:center;letter-spacing:.5px}
-.mp-desc{color:rgba(210,175,115,.7);font-size:11px;font-style:italic;text-align:center;line-height:1.4}
+.mp-desc{color:rgba(210,175,115,.7);font-size:11px;font-style:italic;text-align:center;line-height:1.4;max-height:32px;overflow:hidden}
 .mp-stats{display:flex;flex-wrap:wrap;gap:4px;justify-content:center}
 .mp-stat{background:rgba(0,0,0,.4);border:1px solid rgba(180,130,40,.2);border-radius:4px;padding:2px 7px;font-size:10px;color:#c49840}
 .mp-stat.pos{color:#78e878;border-color:rgba(60,180,60,.25)}.mp-stat.neg{color:#e87878;border-color:rgba(180,60,60,.25)}
@@ -396,6 +421,11 @@ const MARKETPLACE_CSS = (path) => `
 #mp-toast.show{transform:translateX(-50%) translateY(0);opacity:1}
 #mp-toast.t-success{border-color:#30b050;color:#80ff90}
 #mp-toast.t-err{border-color:#c02020;color:#ff8888}
+#escape-overlay{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.88);backdrop-filter:blur(4px);animation:mpFadeIn .25s ease}
+#escape-panel{width:min(500px,90vw);background:linear-gradient(160deg,#110800 0%,#06030a 100%);border:3px solid #7a3a08;border-radius:18px;overflow:hidden;font-family:'IM Fell English',serif;box-shadow:0 0 80px rgba(180,80,10,.25),inset 0 0 60px rgba(0,0,0,.6);padding:40px;text-align:center}
+#escape-message{font-family:'Cinzel Decorative',cursive;color:#e8a020;font-size:24px;margin-bottom:20px}
+#escape-btn{background:rgba(140,75,8,.7);border:2px solid #b07010;border-radius:8px;color:#f0c030;font-family:'Cinzel Decorative',cursive;font-size:16px;padding:12px 24px;cursor:pointer;letter-spacing:1px;transition:background .15s;margin-top:20px}
+#escape-btn:hover{background:rgba(210,120,15,.75);color:#fff}
 `;
 
 class InstructionsUI {
@@ -476,9 +506,10 @@ class InstructionsUI {
 }
 
 class MarketplaceUI {
-  constructor(path, onClose, initialInventory = [], initialRubies = 0) {
+  constructor(path, onClose, initialInventory = [], initialRubies = 0, onEscapeSuccess = null) {
     this.path        = path;
     this.onClose     = onClose;
+    this.onEscapeSuccess = onEscapeSuccess;
     this.coins       = initialRubies;
     this.inventory   = [...initialInventory];
     this.currentTab  = 'weapons';
@@ -517,6 +548,7 @@ class MarketplaceUI {
           <button class="mp-tab" data-tab="potions">🧪 Potions</button>
           <button class="mp-tab" data-tab="maps">🗺 Maps</button>
           <button class="mp-tab" data-tab="misc">🔮 Misc</button>
+          <button class="mp-tab" data-tab="escape">🚢 Escape</button>
         </div>
         <div id="mp-shopgrid"></div>
         <div id="mp-inv-panel">
@@ -571,7 +603,9 @@ class MarketplaceUI {
       ).join('');
       const actionHtml = owned
         ? `<button class="mp-sell-btn" data-id="${item.id}">Sell for ${Math.floor(item.price * 0.5)} ◈</button>`
-        : `<button class="mp-buy-btn" data-id="${item.id}" ${canBuy ? '' : 'disabled'}>${canBuy ? 'Purchase' : 'Need ' + (item.price - this.coins) + ' more'}</button>`;
+        : canBuy
+        ? `<button class="mp-buy-btn" data-id="${item.id}">Purchase</button>`
+        : '';
       card.innerHTML = `
         <div class="mp-rarity r-${item.rarity}">${item.rarity.toUpperCase()}</div>
         <div class="mp-icon">${item.icon}</div>
@@ -591,10 +625,17 @@ class MarketplaceUI {
   _buy(id) {
     const item = this._findItem(id);
     if (!item || this.coins < item.price) { this._toast('Not enough rubies!', 'err'); return; }
-    this.coins -= item.price;
-    this.inventory.push(item);
-    this._updateHUD(); this._renderShop(); this._renderInventory();
-    this._toast(`${item.icon} ${item.name} acquired!`, 'success');
+    const isEscape = SHOP_DATA.escape.some(e => e.id === id);
+    if (isEscape) {
+      this.coins -= item.price;
+      this._updateHUD();
+      this._attemptEscape(item);
+    } else {
+      this.coins -= item.price;
+      this.inventory.push(item);
+      this._updateHUD(); this._renderShop(); this._renderInventory();
+      this._toast(`${item.icon} ${item.name} acquired!`, 'success');
+    }
   }
 
   _sell(id) {
@@ -606,6 +647,43 @@ class MarketplaceUI {
     this.inventory.splice(idx, 1);
     this._updateHUD(); this._renderShop(); this._renderInventory();
     this._toast(`Sold ${item.name} for ${gain} rubies.`);
+  }
+
+  _attemptEscape(item) {
+    let chance;
+    if (item.rarity === 'common' || item.rarity === 'uncommon') {
+      chance = 0.5;
+    } else if (item.rarity === 'epic'|| item.rarity === 'rare') {
+      chance = 0.75;
+    } else if (item.rarity === 'legendary') {
+      chance = 1.0;
+    } else {
+      chance = 0; // fallback
+    }
+    const success = Math.random() < chance;
+    this._showEscapeResult(success);
+  }
+
+  _showEscapeResult(success) {
+    const overlay = document.createElement('div');
+    overlay.id = 'escape-overlay';
+    overlay.innerHTML = `
+      <div id="escape-panel">
+        <div id="escape-message">${success ? 'You have escaped!' : 'Your escape route has failed.'}</div>
+        ${success ? '<button id="escape-btn">Continue to Next Level</button>' : ''}
+      </div>
+    `;
+    document.body.appendChild(overlay);
+    if (success) {
+      document.getElementById('escape-btn').addEventListener('click', () => {
+        overlay.remove();
+        if (this.onEscapeSuccess) {
+          this.onEscapeSuccess();
+        }
+      });
+    } else {
+      setTimeout(() => overlay.remove(), 3000); // auto close after 3 seconds
+    }
   }
 
   _findItem(id) {
@@ -721,7 +799,7 @@ class MarketPirateGame {
     this.classes = [
       { class: GameEnvBackground, data: {
         name: 'marketplace',
-        src: path + '/images/PirateLevel2BG.png',
+        src: path + '/images/NewPirateLevel2BGNTM.png',
         pixels: { height: 580, width: 1038 }
       }},
       { class: Player, data: {
@@ -748,10 +826,26 @@ class MarketPirateGame {
     this.shopZone        = this._computeShopZone();
 
     this.barriers = [
-      new Barrier({ x: 0, y: 0, width: width * 0.28, height: height * 0.70, visible: false }, gameEnv),
-      new Barrier({ x: width * 0.38, y: height * 0.27, width: width * 0.22, height: height * 0.37, visible: false }, gameEnv),
-      new Barrier({ x: width * 0.64, y: 0, width: width * 0.33, height: height * 0.22, visible: false }, gameEnv),
-      new Barrier({ x: width * 0.75, y: height * 0.55, width: width * 0.22, height: height * 0.37, visible: false }, gameEnv),
+      // Small top-left water/rock block, keeps spawn area open
+      new Barrier({ x: 0, y: 0, width: width * 0.08, height: height * 0.14, visible: false }, gameEnv),
+      new Barrier({ x: width * 0.08, y: 0, width: width * 0.12, height: height * 0.06, visible: false }, gameEnv),
+      // Top-center skull cave cliff area
+      // Top-right ridge above the upper path
+      new Barrier({ x: width * 0.60, y: 0, width: width * 0.34, height: height * 0.12, visible: false }, gameEnv),
+      // Upper-left tent rock cluster
+      new Barrier({ x: width * 0.08, y: height * 0.20, width: width * 0.16, height: height * 0.12, visible: false }, gameEnv),
+      // Upper-center bridge/cave area
+      new Barrier({ x: width * 0.28, y: height * 0.20, width: width * 0.20, height: height * 0.16, visible: false }, gameEnv),
+      new Barrier({ x: width * 0.48, y: height * 0.20, width: width * 0.10, height: height * 0.16, visible: false }, gameEnv),
+      // Upper-right rock groups
+      new Barrier({ x: width * 0.60, y: height * 0.24, width: width * 0.18, height: height * 0.12, visible: false }, gameEnv),
+      new Barrier({ x: width * 0.78, y: height * 0.18, width: width * 0.16, height: height * 0.10, visible: false }, gameEnv),
+      // Bottom-left dock and rock edge
+      new Barrier({ x: 0, y: height * 0.54, width: width * 0.18, height: height * 0.30, visible: false }, gameEnv),
+      // Bottom-center lower-rock area
+      new Barrier({ x: width * 0.18, y: height * 0.56, width: width * 0.18, height: height * 0.26, visible: false }, gameEnv),
+      // Bottom-right dock and water boundary
+      new Barrier({ x: width * 0.56, y: height * 0.52, width: width * 0.34, height: height * 0.34, visible: false }, gameEnv),
     ];
 
     // Add barriers to game environment
@@ -1004,7 +1098,19 @@ And if ye hear Blackbread's boots behind ye… don't look back.<br><br>
         this._ui   = null;
       },
       this._bagInventory,
-      startingRubies
+      startingRubies,
+      () => {
+        // On escape success, go to next level
+        this.destroy();
+        // Assuming the game has a way to load next level
+        if (this.gameEnv.loadNextLevel) {
+          this.gameEnv.loadNextLevel();
+        } else {
+          // Fallback: reload page or alert
+          alert('Congratulations! You escaped to the next level.');
+          window.location.reload();
+        }
+      }
     );
   }
 
