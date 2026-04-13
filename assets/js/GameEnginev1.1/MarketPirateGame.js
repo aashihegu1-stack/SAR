@@ -8,7 +8,7 @@ const RARITY_XP  = { common: 20, uncommon: 45, rare: 90, epic: 160, legendary: 2
 const RARITY_LVL = { common: [1,3], uncommon: [3,5], rare: [5,7], epic: [7,9], legendary: [9,10] };
 
 const RANK_TITLES = ['','Stowaway','Deckhand','Sailor','Bosun','Quartermaster',
-                     'First Mate','Master Gunner','Captain','Admiral','Pirate King'];
+                     'First Commander','Master Gunner','Captain','Admiral','Pirate King'];
 
 function levelColor(lvl) {
   if (lvl <= 2) return { bg: 'rgba(80,80,80,.7)',   color: '#ccc'    };
