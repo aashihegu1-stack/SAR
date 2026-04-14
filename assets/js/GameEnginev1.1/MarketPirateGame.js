@@ -1085,6 +1085,235 @@ class WorldEnemy {
   remove() { this.el?.remove(); }
 }
 
+// ── Training CSS ──────────────────────────────────────────────────────────────
+const TRAINING_CSS = `
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=IM+Fell+English:ital@0;1&display=swap');
+#training-overlay{position:fixed;inset:0;z-index:99998;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.88);backdrop-filter:blur(5px);animation:trFadeIn .3s ease}
+@keyframes trFadeIn{from{opacity:0}to{opacity:1}}
+#training-panel{width:min(520px,94vw);background:linear-gradient(160deg,#1a0f05 0%,#0d0704 100%);border:3px solid #8a5010;border-radius:18px;overflow:hidden;font-family:'IM Fell English',serif;box-shadow:0 0 80px rgba(140,80,20,.25),inset 0 0 60px rgba(0,0,0,.6);display:flex;flex-direction:column}
+#training-header{background:rgba(0,0,0,.5);border-bottom:2px solid #5a3010;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+#training-title{font-family:'Cinzel Decorative',cursive;color:#e8a020;font-size:18px;letter-spacing:2px}
+#training-close-btn{background:rgba(120,30,10,.6);border:1.5px solid #8a3010;border-radius:8px;color:#e8a030;font-family:'Cinzel Decorative',cursive;font-size:11px;padding:7px 14px;cursor:pointer;transition:background .15s}
+#training-close-btn:hover{background:rgba(200,60,20,.65)}
+#training-content{padding:24px;display:flex;flex-direction:column;gap:20px;overflow-y:auto;flex:1}
+.tr-stat-selector{display:flex;gap:12px;justify-content:center}
+.tr-stat-choice{background:rgba(0,0,0,.4);border:2px solid rgba(180,110,30,.4);border-radius:10px;padding:14px 18px;cursor:pointer;transition:all .2s;text-align:center;flex:1}
+.tr-stat-choice:hover{border-color:rgba(220,150,30,.7);background:rgba(0,0,0,.5)}
+.tr-stat-choice.active{background:rgba(180,110,30,.4);border-color:#f0c030}
+.tr-stat-label-sm{font-family:'Cinzel Decorative',cursive;color:rgba(220,180,120,.6);font-size:10px;letter-spacing:1px}
+.tr-stat-val-sm{font-family:'Cinzel Decorative',cursive;color:#f0c030;font-size:16px;margin-top:4px}
+#tr-minigame-area{background:rgba(0,0,0,.4);border:1.5px solid rgba(180,110,30,.4);border-radius:10px;padding:24px;display:flex;flex-direction:column;gap:14px;min-height:140px;display:none}
+#tr-minigame-area.active{display:flex}
+.tr-game-title{font-family:'Cinzel Decorative',cursive;color:#e8a020;font-size:13px;letter-spacing:1px;text-align:center}
+.tr-progress-bar{width:100%;height:24px;background:rgba(0,0,0,.6);border:1.5px solid rgba(180,110,30,.5);border-radius:6px;position:relative;overflow:hidden}
+.tr-progress-fill{height:100%;background:linear-gradient(90deg,#d04020,#f08030);position:absolute;left:0;top:0;width:20%;border-radius:5px;transition:width .05s linear;box-shadow:0 0 8px rgba(240,128,48,.6)}
+.tr-target-zone{position:absolute;top:0;height:100%;background:rgba(100,200,100,.4);border-left:2px solid #60ff60;border-right:2px solid #60ff60;z-index:1}
+.tr-click-btn{background:rgba(140,80,10,.7);border:2px solid #b07010;border-radius:8px;color:#f0c030;font-family:'Cinzel Decorative',cursive;font-size:13px;padding:12px 24px;cursor:pointer;letter-spacing:1px;transition:all .15s;align-self:center}
+.tr-click-btn:hover{background:rgba(210,120,15,.8);transform:scale(1.05)}
+.tr-result-msg{text-align:center;font-family:'Cinzel Decorative',cursive;font-size:12px;min-height:20px}
+.tr-result-msg.success{color:#90ff90}
+.tr-result-msg.fail{color:#ff9090}
+#tr-stat-summary{background:rgba(0,0,0,.3);border:1.5px solid rgba(180,110,30,.3);border-radius:8px;padding:12px;text-align:center;font-size:11px;color:rgba(210,175,115,.8);line-height:1.5}
+`;
+
+// ── TrainingUI ────────────────────────────────────────────────────────────────
+class TrainingUI {
+  constructor(playerLevel, currentAtk, currentDef, atkBonus, defBonus, onClose) {
+    this.playerLevel = playerLevel;
+    this.currentAtk = currentAtk;
+    this.currentDef = currentDef;
+    this.atkBonus = atkBonus;
+    this.defBonus = defBonus;
+    this.onClose = onClose;
+    this.selectedStat = null;
+    this.gameActive = false;
+    this.progress = 0;
+    this.direction = 1;
+    this.resultMsg = '';
+    this._gameLoop = null;
+    this._build();
+    this._bind();
+  }
+
+  _build() {
+    this.overlay = document.createElement('div');
+    this.overlay.id = 'training-overlay';
+    
+    this.panel = document.createElement('div');
+    this.panel.id = 'training-panel';
+    
+    this.panel.innerHTML = `
+      <div id="training-header">
+        <div id="training-title">⚔ COMBAT TRAINING</div>
+        <button id="training-close-btn">EXIT</button>
+      </div>
+      <div id="training-content">
+        <div class="tr-stat-selector">
+          <div class="tr-stat-choice" data-stat="atk">
+            <div class="tr-stat-label-sm">ATTACK</div>
+            <div class="tr-stat-val-sm">${this.currentAtk}</div>
+            ${this.atkBonus > 0 ? `<div style="font-size:9px;color:#90ff90;">+${this.atkBonus}</div>` : ''}
+          </div>
+          <div class="tr-stat-choice" data-stat="def">
+            <div class="tr-stat-label-sm">DEFENSE</div>
+            <div class="tr-stat-val-sm">${this.currentDef}</div>
+            ${this.defBonus > 0 ? `<div style="font-size:9px;color:#90ff90;">+${this.defBonus}</div>` : ''}
+          </div>
+        </div>
+        <div id="tr-minigame-area">
+          <div class="tr-game-title">⚡ TIME YOUR CLICK!</div>
+          <div class="tr-progress-bar" id="tr-progress-bar">
+            <div class="tr-progress-fill" id="tr-progress-fill"></div>
+            <div class="tr-target-zone" id="tr-target-zone"></div>
+          </div>
+          <button class="tr-click-btn" id="tr-click-btn">CLICK NOW! (SPACE)</button>
+          <div class="tr-result-msg" id="tr-result-msg"></div>
+        </div>
+        <div id="tr-stat-summary">
+          <strong>Training Mini Game:</strong><br>
+          Click when the bar enters the <span style="color:#60ff60;">GREEN ZONE</span><br>
+          Success = +1 to selected stat. Try again if you fail!
+        </div>
+      </div>
+    `;
+    
+    this.overlay.appendChild(this.panel);
+    document.body.appendChild(this.overlay);
+    
+    this.closeBtn = document.getElementById('training-close-btn');
+    this.statChoices = this.panel.querySelectorAll('.tr-stat-choice');
+    this.resultMsg = document.getElementById('tr-result-msg');
+    this.clickBtn = document.getElementById('tr-click-btn');
+  }
+
+  _bind() {
+    this.closeBtn.addEventListener('click', () => this._exit());
+    
+    this.statChoices.forEach(choice => {
+      choice.addEventListener('click', () => {
+        this.statChoices.forEach(c => c.classList.remove('active'));
+        choice.classList.add('active');
+        this.selectedStat = choice.dataset.stat;
+        this._startMinigame();
+      });
+    });
+
+    this.clickBtn.addEventListener('click', () => this._attemptClick());
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' && this.gameActive) {
+        e.preventDefault();
+        this._attemptClick();
+      }
+    });
+  }
+
+  _startMinigame() {
+    const area = this.panel.querySelector('#tr-minigame-area');
+    area.classList.add('active');
+    
+    this.gameActive = true;
+    this.progress = 0;
+    this.direction = 1;
+    this.resultMsg.textContent = '';
+    this.resultMsg.className = '';
+    
+    if (this._gameLoop) cancelAnimationFrame(this._gameLoop);
+    this._animateBar();
+  }
+
+  _animateBar() {
+    const fill = document.getElementById('tr-progress-fill');
+    const target = document.getElementById('tr-target-zone');
+    const targetStart = 35;
+    const targetWidth = 30;
+    
+    const tick = () => {
+      if (!this.gameActive) return;
+      
+      this.progress += this.direction * 3;
+      if (this.progress <= 0 || this.progress >= 100) {
+        this.direction *= -1;
+      }
+      this.progress = Math.max(0, Math.min(100, this.progress));
+      
+      fill.style.width = this.progress + '%';
+      target.style.left = targetStart + '%';
+      target.style.width = targetWidth + '%';
+      
+      this._gameLoop = requestAnimationFrame(tick);
+    };
+    this._gameLoop = requestAnimationFrame(tick);
+  }
+
+  _attemptClick() {
+    if (!this.gameActive) return;
+    
+    const targetStart = 35;
+    const targetWidth = 30;
+    const targetEnd = targetStart + targetWidth;
+    const success = this.progress >= targetStart && this.progress <= targetEnd;
+    
+    if (success) {
+      this.resultMsg.textContent = '✓ PERFECT! +1 ' + (this.selectedStat === 'atk' ? 'ATK' : 'DEF');
+      this.resultMsg.className = 'tr-result-msg success';
+      
+      if (this.selectedStat === 'atk') this.atkBonus += 1;
+      else this.defBonus += 1;
+      
+      this._updateStatDisplay();
+      
+      this.gameActive = false;
+      if (this._gameLoop) cancelAnimationFrame(this._gameLoop);
+      
+      setTimeout(() => this._startMinigame(), 1200);
+    } else {
+      this.resultMsg.textContent = '✗ MISS! Position: ' + this.progress.toFixed(0) + '%';
+      this.resultMsg.className = 'tr-result-msg fail';
+      this.gameActive = false;
+      if (this._gameLoop) cancelAnimationFrame(this._gameLoop);
+      
+      setTimeout(() => this._startMinigame(), 800);
+    }
+  }
+
+  _updateStatDisplay() {
+    const statChoices = this.panel.querySelectorAll('.tr-stat-choice');
+    statChoices.forEach(choice => {
+      if (choice.dataset.stat === 'atk') {
+        const bonus = choice.querySelector('div:nth-child(3)');
+        if (bonus) bonus.textContent = `+${this.atkBonus}`;
+        else if (this.atkBonus > 0) {
+          const newBonus = document.createElement('div');
+          newBonus.style.cssText = 'font-size:9px;color:#90ff90;';
+          newBonus.textContent = `+${this.atkBonus}`;
+          choice.appendChild(newBonus);
+        }
+      } else {
+        const bonus = choice.querySelector('div:nth-child(3)');
+        if (bonus) bonus.textContent = `+${this.defBonus}`;
+        else if (this.defBonus > 0) {
+          const newBonus = document.createElement('div');
+          newBonus.style.cssText = 'font-size:9px;color:#90ff90;';
+          newBonus.textContent = `+${this.defBonus}`;
+          choice.appendChild(newBonus);
+        }
+      }
+    });
+  }
+
+  _exit() {
+    if (this._gameLoop) cancelAnimationFrame(this._gameLoop);
+    this.gameActive = false;
+    this.destroy();
+    this.onClose?.(this.atkBonus, this.defBonus);
+  }
+
+  destroy() {
+    if (this._gameLoop) cancelAnimationFrame(this._gameLoop);
+    if (this.overlay?.parentNode) this.overlay.remove();
+  }
+}
+
 // ── MarketPirateGame ──────────────────────────────────────────────────────────
 class MarketPirateGame {
   constructor(gameEnv) {
@@ -1120,13 +1349,28 @@ class MarketPirateGame {
 
     this._shopZoneRatios={x:0.38,y:0.30,w:0.24,h:0.40};
     this.shopZone=this._computeShopZone();
+    this._trainingZoneRatios={x:0.15,y:0.65,w:0.18,h:0.18};
+    this.trainingZone=this._computeTrainingZone();
     this._bagInventory=[]; this._totalRubies=0; this._bankedRubies=0;
     this._battleOpen=false; this._battleUI=null;
+    this._trainingOpen=false; this._trainingUI=null;
     this._worldEnemies=[]; this._nearbyEnemy=null;
     this._open=false; this._ui=null; this._killCount=0;
     this._playerLevel=1; this._playerXp=0;
+    this._trainAtkBonus=0; this._trainDefBonus=0;
     this._applyLevelStats();
     this._playerCurHp=this._playerMaxHp;
+    
+    // Day/Night cycle
+    this._gameDay=1;
+    this._dayProgress=0; // 0-100 representing time of day (0=dawn, 50=noon, 100=dusk)
+    this._dayPhase='day'; // 'day' or 'night'
+    this._trainSessionsToday=0;
+    this._maxTrainSessions=5; // Max trainings per day
+    this._dayTimer=null;
+    this._lightingOverlay=null;
+    this._atmosphereOverlay=null;
+    this._flashlightOverlay=null;
 
     if (!document.getElementById('battle-style')) {
       const s=document.createElement('style'); s.id='battle-style';
@@ -1136,6 +1380,42 @@ class MarketPirateGame {
       const s=document.createElement('style'); s.id='mpg-hud-style';
       s.textContent=HUD_CSS; document.head.appendChild(s);
     }
+    if (!document.getElementById('training-style')) {
+      const s=document.createElement('style'); s.id='training-style';
+      s.textContent=TRAINING_CSS; document.head.appendChild(s);
+    }
+
+    // Lighting overlay for day/night effects
+    this._lightingOverlay=document.createElement('div');
+    this._lightingOverlay.id='mpg-lighting-overlay';
+    this._lightingOverlay.style.cssText=`
+      position:fixed;top:0;left:0;width:100%;height:100%;
+      pointer-events:none;z-index:5000;
+      background:radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0) 100%);
+      mix-blend-mode:multiply;
+    `;
+    document.body.appendChild(this._lightingOverlay);
+
+    // Atmosphere overlay for stars, etc
+    this._atmosphereOverlay=document.createElement('div');
+    this._atmosphereOverlay.id='mpg-atmosphere-overlay';
+    this._atmosphereOverlay.style.cssText=`
+      position:fixed;top:0;left:0;width:100%;height:100%;
+      pointer-events:none;z-index:4999;
+    `;
+    document.body.appendChild(this._atmosphereOverlay);
+
+    // Flashlight effect for night vision
+    this._flashlightOverlay=document.createElement('div');
+    this._flashlightOverlay.id='mpg-flashlight';
+    this._flashlightOverlay.style.cssText=`
+      position:fixed;top:0;left:0;width:100%;height:100%;
+      pointer-events:none;z-index:5001;
+      background:radial-gradient(circle 120px at 50% 50%, rgba(255,255,200,0.8), rgba(255,255,150,0.4) 40%, rgba(0,0,0,0.3) 100%);
+      opacity:0;
+      transition:opacity 0.6s ease;
+    `;
+    document.body.appendChild(this._flashlightOverlay);
 
     // Level-up flash
     this._lvlFlash=document.createElement('div'); this._lvlFlash.id='levelup-flash';
@@ -1150,11 +1430,13 @@ class MarketPirateGame {
 
     this._keyHandler=(e)=>{
       if(e.key!=='e'&&e.key!=='E') return;
-      if(this._battleOpen||this._open) return;
+      if(this._battleOpen||this._open||this._trainingOpen) return;
       if(this._nearbyEnemy) { this._startBattle(this._nearbyEnemy); }
       else {
         const player=this.gameEnv.gameObjects?.find(o=>o instanceof Player);
-        if(player&&this._playerInZone(player)) this._openShop();
+        if(!player) return;
+        if(this._playerInZone(player)) this._openShop();
+        else if(this._playerInTrainingZone(player)) this._openTraining();
       }
     };
     window.addEventListener('keydown',this._keyHandler);
@@ -1172,6 +1454,158 @@ class MarketPirateGame {
       this._worldEnemies = this._worldEnemies.filter(e => !e.defeated);
       if (this._worldEnemies.length < 4) this._spawnEnemies(3);
     }, 25000);
+    
+    // Start day/night cycle (40 seconds per in-game day) - update every 50ms for smooth transitions
+    if (this._lightingOverlay) this._buildAtmosphere();
+    this._dayTimer = setInterval(() => this._updateDayNightCycle(), 50);
+  }
+
+  // ── Day/Night Cycle ──────────────────────────────────────────────────────────
+  _updateDayNightCycle() {
+    this._dayProgress += 0.1; // Increment by 0.1% per 50ms tick (40 second full cycle)
+    
+    if (this._dayProgress >= 100) {
+      this._dayProgress = 0;
+      this._gameDay++;
+      this._trainSessionsToday = 0; // Reset training sessions for new day
+      this._updateWorldHP(); // Refresh HUD to show new day
+    }
+    
+    // Determine phase: 0-25 = dawn, 25-70 = day, 70-85 = dusk, 85-100 = night
+    const oldPhase = this._dayPhase;
+    if (this._dayProgress < 25) {
+      this._dayPhase = 'dawn';
+    } else if (this._dayProgress < 70) {
+      this._dayPhase = 'day';
+    } else if (this._dayProgress < 85) {
+      this._dayPhase = 'dusk';
+    } else {
+      this._dayPhase = 'night';
+    }
+    
+    if (oldPhase !== this._dayPhase) {
+      this._buildAtmosphere();
+    }
+    
+    // Apply lighting effects every frame for smooth transitions
+    this._applyDayNightEffect();
+  }
+  
+  _applyDayNightEffect() {
+    const progress = this._dayProgress;
+    let brightness, hueRotate, saturation;
+    let overlayColor, overlayAlpha;
+    
+    // Calculate values based on time of day
+    if (progress < 25) { // Dawn (0-25)
+      const phase = progress / 25;
+      brightness = 0.4 + phase * 0.6; // 0.4 to 1.0
+      hueRotate = -30 + phase * 30; // -30 to 0
+      saturation = 80 + phase * 20; // 80% to 100%
+      overlayColor = [255, 140, 60]; // Orange-red
+      overlayAlpha = (1 - phase) * 0.3; // 0.3 to 0
+    } else if (progress < 70) { // Day (25-70)
+      brightness = 1.0; // Full brightness
+      hueRotate = 0;
+      saturation = 100;
+      overlayColor = [200, 220, 255]; // Light blue
+      overlayAlpha = 0;
+    } else if (progress < 85) { // Dusk (70-85)
+      const phase = (progress - 70) / 15;
+      brightness = 1.0 - phase * 0.4; // 1.0 to 0.6
+      hueRotate = phase * 15; // 0 to 15
+      saturation = 100 - phase * 30; // 100% to 70%
+      overlayColor = [255, 100, 50]; // Deep orange
+      overlayAlpha = phase * 0.4; // 0 to 0.4
+    } else { // Night (85-100)
+      const phase = (progress - 85) / 15;
+      brightness = 0.6 - phase * 0.25; // 0.6 to 0.35
+      hueRotate = 15 - phase * 5; // 15 to 10
+      saturation = 70 - phase * 20; // 70% to 50%
+      overlayColor = [20, 30, 80]; // Deep blue
+      overlayAlpha = 0.5 + phase * 0.2; // 0.5 to 0.7
+    }
+    
+    // Apply filter to game background
+    const bg = document.querySelector('[data-bg-layer]');
+    if (bg) {
+      bg.style.filter = `brightness(${brightness}) hue-rotate(${hueRotate}deg) saturate(${saturation}%)`;
+    }
+    
+    // Apply to lighting overlay
+    if (this._lightingOverlay) {
+      const [r, g, b] = overlayColor;
+      this._lightingOverlay.style.backgroundColor = `rgba(${r}, ${g}, ${b}, ${overlayAlpha})`;
+      this._lightingOverlay.style.backgroundImage = 
+        `radial-gradient(ellipse at center, transparent 0%, rgba(0, 0, 0, ${overlayAlpha * 0.5}) 100%)`;
+    }
+    
+    // Apply shadow effect to game canvas if available
+    const canvas = document.querySelector('canvas');
+    if (canvas) {
+      canvas.style.filter = `brightness(${brightness}) hue-rotate(${hueRotate}deg)`;
+    }
+  }
+  
+  _buildAtmosphere() {
+    if (!this._atmosphereOverlay) return;
+    
+    if (this._dayPhase === 'night') {
+      // Build starfield
+      this._atmosphereOverlay.innerHTML = '';
+      const starCount = 50;
+      for (let i = 0; i < starCount; i++) {
+        const star = document.createElement('div');
+        const size = Math.random() * 2 + 0.5;
+        const x = Math.random() * 100;
+        const y = Math.random() * 100;
+        const duration = Math.random() * 3 + 2;
+        star.style.cssText = `
+          position:absolute;
+          left:${x}%;
+          top:${y}%;
+          width:${size}px;
+          height:${size}px;
+          background:white;
+          border-radius:50%;
+          opacity:${Math.random() * 0.7 + 0.3};
+          box-shadow:0 0 ${size * 2}px rgba(255,255,255,0.8);
+          animation:twinkle ${duration}s infinite;
+        `;
+        this._atmosphereOverlay.appendChild(star);
+      }
+      
+      // Add twinkling keyframes if not present
+      if (!document.getElementById('twinkle-animation')) {
+        const style = document.createElement('style');
+        style.id = 'twinkle-animation';
+        style.textContent = `
+          @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+          }
+        `;
+        document.head.appendChild(style);
+      }
+    } else if (this._dayPhase === 'dusk' || this._dayPhase === 'dawn') {
+      // Atmospheric glow for sunrise/sunset
+      const gradient = this._dayPhase === 'dawn' 
+        ? 'linear-gradient(180deg, rgba(255,100,50,0.3) 0%, rgba(255,150,100,0.2) 30%, transparent 70%)'
+        : 'linear-gradient(180deg, rgba(255,80,30,0.4) 0%, rgba(255,120,60,0.2) 40%, transparent 70%)';
+      this._atmosphereOverlay.style.backgroundImage = gradient;
+    } else {
+      // Clear atmosphere during day
+      this._atmosphereOverlay.innerHTML = '';
+      this._atmosphereOverlay.style.backgroundImage = 'none';
+    }
+  }
+  
+  _getTimeOfDayDisplay() {
+    if (this._dayProgress < 25) return '🌅 DAWN';
+    if (this._dayProgress < 50) return '☀ MORNING';
+    if (this._dayProgress < 70) return '🌤 AFTERNOON';
+    if (this._dayProgress < 85) return '🌆 DUSK';
+    return '🌙 NIGHT';
   }
 
   // ── HUD ───────────────────────────────────────────────────────────────────
@@ -1216,6 +1650,7 @@ class MarketPirateGame {
       <div class="mpg-seg" style="gap:7px;">
         <div class="mpg-stat-pill"><div class="sv">${this._playerAtk}</div><div class="sl">ATK</div></div>
         <div class="mpg-stat-pill"><div class="sv">${this._playerDef}</div><div class="sl">DEF</div></div>
+        ${this._trainAtkBonus > 0 || this._trainDefBonus > 0 ? `<div class="mpg-stat-pill" style="background:rgba(100,180,100,.4);border-color:rgba(100,180,100,.5);"><div class="sv" style="color:#90ff90;">+${this._trainAtkBonus+this._trainDefBonus}</div><div class="sl">TRAIN</div></div>` : ''}
       </div>
 
       <div class="mpg-seg-grow">
@@ -1227,6 +1662,16 @@ class MarketPirateGame {
         <div class="mpg-col">
           <div class="mpg-lbl">RUBIES</div>
           <div class="mpg-val mpg-val-ruby">${rubies}</div>
+        </div>
+      </div>
+
+      <div class="mpg-divider"></div>
+
+      <div class="mpg-seg">
+        <div class="mpg-icon mpg-icon-day" style="font-size:11px;">${this._getTimeOfDayDisplay()}</div>
+        <div class="mpg-col">
+          <div class="mpg-lbl">DAY ${this._gameDay}</div>
+          <div class="mpg-val mpg-val-gray">Trainings: ${this._trainSessionsToday}/${this._maxTrainSessions}</div>
         </div>
       </div>
 
@@ -1252,7 +1697,9 @@ class MarketPirateGame {
   // ── Level / XP ────────────────────────────────────────────────────────────
   _applyLevelStats() {
     const s=playerStatsForLevel(this._playerLevel);
-    this._playerMaxHp=s.maxHp; this._playerAtk=s.atk; this._playerDef=s.def;
+    this._playerMaxHp=s.maxHp;
+    this._playerAtk=s.atk+this._trainAtkBonus;
+    this._playerDef=s.def+this._trainDefBonus;
   }
 
   _gainXp(amount) {
@@ -1278,6 +1725,11 @@ class MarketPirateGame {
   // ── Helpers ───────────────────────────────────────────────────────────────
   _computeShopZone() {
     const w=this.gameEnv.innerWidth, h=this.gameEnv.innerHeight, r=this._shopZoneRatios;
+    return {x:w*r.x, y:h*r.y, width:w*r.w, height:h*r.h};
+  }
+
+  _computeTrainingZone() {
+    const w=this.gameEnv.innerWidth, h=this.gameEnv.innerHeight, r=this._trainingZoneRatios;
     return {x:w*r.x, y:h*r.y, width:w*r.w, height:h*r.h};
   }
 
@@ -1352,7 +1804,7 @@ class MarketPirateGame {
         if(wasDefeated) { this._showGameOver(); }
         else {
           this._playerCurHp=Math.max(1,remainingHp); this._updateWorldHP();
-          if(rubyReward>0){
+          if(rubyReward>0) {
             worldEnemy.markDefeated(); this._killCount++;
             if(this._ui) this._ui.addRuby(rubyReward);
             else this._bankedRubies+=rubyReward;
@@ -1372,6 +1824,14 @@ class MarketPirateGame {
         &&py>this.shopZone.y&&py<this.shopZone.y+this.shopZone.height;
   }
 
+  _playerInTrainingZone(player) {
+    if(!player?.position) return false;
+    const px=player.position.x+(player.width||0)*0.5;
+    const py=player.position.y+(player.height||0)*0.5;
+    return px>this.trainingZone.x&&px<this.trainingZone.x+this.trainingZone.width
+        &&py>this.trainingZone.y&&py<this.trainingZone.y+this.trainingZone.height;
+  }
+
   _openShop() {
     if(this._open) return;
     const player=this.gameEnv.gameObjects?.find(o=>o instanceof Player);
@@ -1389,6 +1849,42 @@ class MarketPirateGame {
       this._bagInventory, startingRubies,
       (healAmt,item,fullHeal)=>this._healPlayer(healAmt,fullHeal),
       this._playerLevel,
+    );
+  }
+
+  _openTraining() {
+    if(this._trainingOpen) return;
+    const player=this.gameEnv.gameObjects?.find(o=>o instanceof Player);
+    if(!player||!this._playerInTrainingZone(player)) return;
+    
+    // Check if training limit reached for today
+    if (this._trainSessionsToday >= this._maxTrainSessions) {
+      this._showToast(`⛔ Training limit reached for today! (${this._trainSessionsToday}/${this._maxTrainSessions})`, 'warning');
+      return;
+    }
+    
+    this._trainingOpen=true;
+    
+    const baseLevelStats=playerStatsForLevel(this._playerLevel);
+    const baseAtk=baseLevelStats.atk;
+    const baseDef=baseLevelStats.def;
+    
+    this._trainingUI=new TrainingUI(
+      this._playerLevel,
+      baseAtk,
+      baseDef,
+      this._trainAtkBonus,
+      this._trainDefBonus,
+      (atkBonus, defBonus)=>{
+        this._trainAtkBonus=atkBonus;
+        this._trainDefBonus=defBonus;
+        this._trainSessionsToday++; // Increment training counter
+        this._applyLevelStats();
+        this._updateWorldHP();
+        this._trainingOpen=false;
+        this._trainingUI=null;
+        this._showToast(`✓ Training session complete! (${this._trainSessionsToday}/${this._maxTrainSessions})`, 'success');
+      }
     );
   }
 
@@ -1415,6 +1911,11 @@ class MarketPirateGame {
 
   _hardReset() {
     this._killCount=0; this._playerLevel=1; this._playerXp=0;
+    this._trainAtkBonus=0; this._trainDefBonus=0;
+    this._gameDay=1;
+    this._dayProgress=0;
+    this._dayPhase='day';
+    this._trainSessionsToday=0;
     this._applyLevelStats(); this._playerCurHp=this._playerMaxHp;
     this._totalRubies=0; this._bankedRubies=0; this._bagInventory=[];
     this._updateWorldHP();
@@ -1428,7 +1929,11 @@ class MarketPirateGame {
     if(!this.gameEnv?.gameObjects) return;
     const player=this.gameEnv.gameObjects.find(o=>o instanceof Player);
     if(!player) return;
-    if(this._open||this._battleOpen){
+    
+    // Update flashlight position during night
+    this._updateFlashlightPosition(player);
+    
+    if(this._open||this._battleOpen||this._trainingOpen){
       this._setHint('');
       this._worldEnemies.forEach(e=>e.hideHint());
       return;
@@ -1441,15 +1946,63 @@ class MarketPirateGame {
       this._setHint(`⚔ ${nearby.type.name} — Lv.${nearby.type.level} · Press E to fight`);
     } else if(this._playerInZone(player)){
       this._setHint('⚓ Press E to enter the market');
+    } else if(this._playerInTrainingZone(player)){
+      this._setHint('💪 Press E to train and boost stats!');
     } else {
       this._setHint('');
     }
+  }
+
+  _updateFlashlightPosition(player) {
+    if (!this._flashlightOverlay || !player?.position) return;
+    
+    // Calculate flashlight visibility based on night phase
+    let flashlightOpacity = 0;
+    if (this._dayPhase === 'night') {
+      // During late night (85-100), full flashlight
+      const nightProgress = Math.max(0, this._dayProgress - 85) / 15;
+      flashlightOpacity = Math.min(1, nightProgress);
+    } else if (this._dayPhase === 'dusk' && this._dayProgress > 77) {
+      // Early flashlight in late dusk
+      flashlightOpacity = (this._dayProgress - 77) / 8 * 0.3;
+    }
+    
+    // Position flashlight at player location
+    const playerX = player.position.x + (player.width || 0) * 0.5;
+    const playerY = player.position.y + (player.height || 0) * 0.5;
+    
+    this._flashlightOverlay.style.backgroundImage = `
+      radial-gradient(
+        circle 160px at ${playerX}px ${playerY}px,
+        rgba(255,255,180,0.9),
+        rgba(255,255,100,0.5) 35%,
+        rgba(255,200,100,0.2) 65%,
+        rgba(0,0,0,0.1) 100%
+      )
+    `;
+    this._flashlightOverlay.style.opacity = flashlightOpacity;
+  }
+
+  _showToast(msg, type='info') {
+    const toast=document.createElement('div');
+    toast.style.cssText=`
+      position:fixed;bottom:120px;left:50%;transform:translateX(-50%);
+      background:rgba(0,0,0,.9);padding:12px 20px;
+      border-radius:6px;font-family:'Cinzel Decorative',cursive;font-size:12px;
+      z-index:100000;letter-spacing:1px;animation:toastRise .3s ease;
+      border:1.5px solid ${type==='success'?'rgba(100,180,100,.6)':type==='warning'?'rgba(200,150,80,.6)':'rgba(100,150,200,.6)'};
+      color:${type==='success'?'#90ff90':type==='warning'?'#ffd070':'#90d0ff'};
+    `;
+    toast.innerHTML=msg;
+    document.body.appendChild(toast);
+    setTimeout(()=>toast.remove(),2000);
   }
 
   draw() {}
 
   resize() {
     this.shopZone=this._computeShopZone();
+    this.trainingZone=this._computeTrainingZone();
     const container=this._getContainer();
     this._worldEnemies.forEach(e=>{e._container=container;e.syncPosition();});
   }
@@ -1457,15 +2010,22 @@ class MarketPirateGame {
   destroy() {
     window.removeEventListener('keydown',this._keyHandler);
     if(this._respawnTimer!=null) clearInterval(this._respawnTimer);
+    if(this._dayTimer!=null) clearInterval(this._dayTimer);
     const enemies=[...this._worldEnemies]; this._worldEnemies=[];
     enemies.forEach(e=>e.remove());
     if(this._battleUI)             this._battleUI.destroy();
+    if(this._trainingUI)           this._trainingUI.destroy();
     if(this.hudBar?.parentNode)    this.hudBar.remove();
     if(this._lvlFlash?.parentNode) this._lvlFlash.remove();
+    if(this._lightingOverlay?.parentNode) this._lightingOverlay.remove();
+    if(this._atmosphereOverlay?.parentNode) this._atmosphereOverlay.remove();
+    if(this._flashlightOverlay?.parentNode) this._flashlightOverlay.remove();
     if(this._ui)                   this._ui.destroy();
     if(this._menuScreen)           this._menuScreen.destroy();
     document.getElementById('gameover-overlay')?.remove();
     document.getElementById('mpg-hud-style')?.remove();
+    document.getElementById('training-style')?.remove();
+    document.getElementById('twinkle-animation')?.remove();
   }
 }
 
