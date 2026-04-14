@@ -212,6 +212,408 @@ const HUD_CSS = `
 .mpg-divider{width:1px;background:rgba(100,50,8,.35);align-self:stretch;margin:8px 0;flex-shrink:0;}
 `;
 
+// ── Menu CSS ──────────────────────────────────────────────────────────────────
+const MENU_CSS = `
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=IM+Fell+English:ital@0;1&display=swap');
+
+#mpg-menu-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999990;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: opacity .6s ease;
+}
+#mpg-menu-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ocean background */
+#mpg-menu-ocean {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #03040f 0%, #040d24 35%, #061830 60%, #082040 100%);
+}
+
+/* stars */
+#mpg-menu-stars {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.mpg-star {
+  position: absolute;
+  background: #fff;
+  border-radius: 50%;
+  animation: starTwinkle var(--d, 3s) ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+  opacity: var(--op, 0.7);
+}
+@keyframes starTwinkle {
+  0%, 100% { opacity: var(--op, 0.7); transform: scale(1); }
+  50%       { opacity: 0.15;           transform: scale(0.6); }
+}
+
+/* moon */
+#mpg-menu-moon {
+  position: absolute;
+  top: 48px;
+  right: 100px;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 38%, #fffbe8, #f0d060 60%, #b08820);
+  box-shadow: 0 0 40px rgba(240,210,80,.35), 0 0 80px rgba(220,180,40,.15);
+}
+#mpg-menu-moon::after {
+  content: '';
+  position: absolute;
+  top: 8px; right: -6px;
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  background: #061830;
+}
+
+/* SVG waves */
+#mpg-menu-waves {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 55%;
+  pointer-events: none;
+}
+
+/* boat */
+#mpg-menu-boat-wrap {
+  position: absolute;
+  bottom: 38%;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: boatRock 4s ease-in-out infinite;
+  transform-origin: center bottom;
+  filter: drop-shadow(0 8px 24px rgba(0,0,0,.7));
+}
+@keyframes boatRock {
+  0%   { transform: translateX(-50%) rotate(-2.5deg) translateY(0px); }
+  25%  { transform: translateX(-50%) rotate(0deg)    translateY(-5px); }
+  50%  { transform: translateX(-50%) rotate(2.5deg)  translateY(0px); }
+  75%  { transform: translateX(-50%) rotate(0deg)    translateY(-5px); }
+  100% { transform: translateX(-50%) rotate(-2.5deg) translateY(0px); }
+}
+
+/* panel */
+#mpg-menu-panel {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  padding: 44px 52px 36px;
+  background: rgba(4, 10, 24, 0.72);
+  border: 2px solid rgba(180, 130, 30, 0.45);
+  border-radius: 20px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 0 80px rgba(180,80,10,.18), inset 0 0 60px rgba(0,0,0,.4);
+  font-family: 'IM Fell English', serif;
+  min-width: 340px;
+  animation: panelDrift 8s ease-in-out infinite;
+}
+@keyframes panelDrift {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-6px); }
+}
+
+#mpg-menu-eyecatcher {
+  font-size: 52px;
+  line-height: 1;
+  filter: drop-shadow(0 4px 16px rgba(220,140,10,.55));
+  animation: skullSway 5s ease-in-out infinite;
+}
+@keyframes skullSway {
+  0%, 100% { transform: rotate(-4deg); }
+  50%       { transform: rotate(4deg); }
+}
+
+#mpg-menu-title {
+  font-family: 'Cinzel Decorative', cursive;
+  color: #e8a020;
+  font-size: 30px;
+  letter-spacing: 4px;
+  text-align: center;
+  text-shadow: 0 0 30px rgba(220,140,10,.5), 0 2px 0 rgba(0,0,0,.8);
+  margin-bottom: -4px;
+}
+#mpg-menu-subtitle {
+  font-family: 'IM Fell English', serif;
+  color: rgba(190, 145, 70, 0.6);
+  font-size: 13px;
+  font-style: italic;
+  letter-spacing: 2px;
+  text-align: center;
+}
+#mpg-menu-divider {
+  width: 200px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(180,130,30,.6), transparent);
+  margin: 2px 0;
+}
+
+/* animated coin row */
+#mpg-menu-coins {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.mpg-coin {
+  font-size: 18px;
+  animation: coinSpin var(--dur,1.8s) ease-in-out infinite;
+  animation-delay: var(--del, 0s);
+}
+@keyframes coinSpin {
+  0%,100% { transform: rotateY(0deg) scale(1); }
+  40%     { transform: rotateY(180deg) scale(0.7); }
+  80%     { transform: rotateY(360deg) scale(1); }
+}
+
+#mpg-play-btn {
+  font-family: 'Cinzel Decorative', cursive;
+  font-size: 15px;
+  letter-spacing: 3px;
+  color: #f0c030;
+  background: rgba(130, 65, 6, 0.8);
+  border: 2px solid #c08018;
+  border-radius: 10px;
+  padding: 15px 56px;
+  cursor: pointer;
+  transition: background .18s, transform .12s, box-shadow .18s;
+  position: relative;
+  overflow: hidden;
+}
+#mpg-play-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255,200,80,.08) 0%, transparent 60%);
+  pointer-events: none;
+}
+#mpg-play-btn:hover {
+  background: rgba(200,110,12,.9);
+  color: #fff;
+  transform: scale(1.06);
+  box-shadow: 0 0 28px rgba(200,140,20,.35);
+}
+#mpg-play-btn:active { transform: scale(0.97); }
+
+#mpg-menu-hint {
+  font-family: 'Cinzel Decorative', cursive;
+  font-size: 8.5px;
+  color: rgba(140, 90, 30, 0.5);
+  letter-spacing: 1.5px;
+  text-align: center;
+  line-height: 1.9;
+}
+`;
+
+// ── MenuScreen ─────────────────────────────────────────────────────────────────
+class MenuScreen {
+  constructor(onPlay) {
+    this._onPlay = onPlay;
+    this._raf = null;
+    this._waveOffset = 0;
+    if (!document.getElementById('mpg-menu-style')) {
+      const s = document.createElement('style');
+      s.id = 'mpg-menu-style';
+      s.textContent = MENU_CSS;
+      document.head.appendChild(s);
+    }
+    this._build();
+    this._animateWaves();
+  }
+
+  _build() {
+    this.overlay = document.createElement('div');
+    this.overlay.id = 'mpg-menu-overlay';
+
+    // Stars HTML
+    let starsHtml = '';
+    for (let i = 0; i < 80; i++) {
+      const x = Math.random() * 100;
+      const y = Math.random() * 55;
+      const size = Math.random() * 2.2 + 0.6;
+      const dur = (2 + Math.random() * 4).toFixed(1);
+      const delay = (Math.random() * 4).toFixed(1);
+      const op = (0.4 + Math.random() * 0.6).toFixed(2);
+      starsHtml += `<div class="mpg-star" style="left:${x.toFixed(1)}%;top:${y.toFixed(1)}%;width:${size.toFixed(1)}px;height:${size.toFixed(1)}px;--d:${dur}s;--delay:${delay}s;--op:${op};"></div>`;
+    }
+
+    // Coins
+    const coinDelays = [0, 0.3, 0.6, 0.9, 1.2];
+    const coinsHtml = ['💎','⚓','💎','⚓','💎'].map((c, i) =>
+      `<span class="mpg-coin" style="--dur:${(1.6+i*0.15).toFixed(2)}s;--del:${coinDelays[i]}s;">${c}</span>`
+    ).join('');
+
+    this.overlay.innerHTML = `
+      <div id="mpg-menu-ocean"></div>
+      <div id="mpg-menu-stars">${starsHtml}</div>
+      <div id="mpg-menu-moon"></div>
+      <svg id="mpg-menu-waves" viewBox="0 0 1440 320" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="wg1" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#0a2a50" stop-opacity="0.95"/>
+            <stop offset="100%" stop-color="#051525" stop-opacity="1"/>
+          </linearGradient>
+          <linearGradient id="wg2" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#0d3560" stop-opacity="0.8"/>
+            <stop offset="100%" stop-color="#071c38" stop-opacity="1"/>
+          </linearGradient>
+          <linearGradient id="wg3" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#122a4a" stop-opacity="0.6"/>
+            <stop offset="100%" stop-color="#0a1e33" stop-opacity="1"/>
+          </linearGradient>
+        </defs>
+        <path id="mpg-wave3" fill="url(#wg3)" d=""/>
+        <path id="mpg-wave2" fill="url(#wg2)" d=""/>
+        <path id="mpg-wave1" fill="url(#wg1)" d=""/>
+        <!-- foam lines -->
+        <path id="mpg-foam1" fill="none" stroke="rgba(180,220,255,0.18)" stroke-width="2" d=""/>
+        <path id="mpg-foam2" fill="none" stroke="rgba(180,220,255,0.10)" stroke-width="1.5" d=""/>
+      </svg>
+      <div id="mpg-menu-boat-wrap">
+        <svg width="180" height="120" viewBox="0 0 180 120" xmlns="http://www.w3.org/2000/svg">
+          <!-- hull -->
+          <path d="M20 72 Q90 92 160 72 L150 88 Q90 105 30 88 Z" fill="#5c2e08" stroke="#3a1c04" stroke-width="2"/>
+          <path d="M24 76 Q90 94 156 76" fill="none" stroke="#8a4a14" stroke-width="1.5" opacity="0.6"/>
+          <!-- hull band -->
+          <path d="M30 88 Q90 105 150 88 L148 92 Q90 108 32 92 Z" fill="#3a1c04"/>
+          <!-- deck -->
+          <rect x="32" y="66" width="116" height="8" rx="3" fill="#7a3e10" stroke="#5c2e08" stroke-width="1"/>
+          <!-- mast -->
+          <line x1="90" y1="10" x2="90" y2="70" stroke="#4a2206" stroke-width="5" stroke-linecap="round"/>
+          <line x1="90" y1="10" x2="90" y2="70" stroke="#7a3e10" stroke-width="2" stroke-linecap="round"/>
+          <!-- main sail -->
+          <path d="M90 14 Q130 28 128 62 L90 68 Z" fill="rgba(240,220,180,0.92)" stroke="#c8a850" stroke-width="1.5"/>
+          <!-- sail shading -->
+          <path d="M90 14 Q110 30 108 62 L90 68 Z" fill="rgba(200,170,110,0.3)"/>
+          <!-- horizontal sail lines -->
+          <line x1="90" y1="30" x2="124" y2="32" stroke="#c8a850" stroke-width="0.8" opacity="0.5"/>
+          <line x1="90" y1="46" x2="126" y2="49" stroke="#c8a850" stroke-width="0.8" opacity="0.5"/>
+          <!-- skull on sail -->
+          <text x="112" y="46" font-size="18" text-anchor="middle" dominant-baseline="middle" opacity="0.85">☠</text>
+          <!-- fore sail -->
+          <path d="M90 20 Q62 34 60 62 L90 68 Z" fill="rgba(230,210,165,0.7)" stroke="#b89840" stroke-width="1"/>
+          <!-- flag -->
+          <line x1="90" y1="10" x2="90" y2="0" stroke="#2a0e02" stroke-width="2"/>
+          <path d="M90 0 L110 5 L90 10 Z" fill="#1a0000" stroke="#300" stroke-width="0.5"/>
+          <text x="100" y="7" font-size="7" text-anchor="middle" dominant-baseline="middle" fill="#c00">☠</text>
+          <!-- porthole -->
+          <circle cx="55" cy="78" r="5" fill="#1a0e04" stroke="#c8a020" stroke-width="1.5"/>
+          <circle cx="55" cy="78" r="2.5" fill="#2a1a06" opacity="0.8"/>
+          <circle cx="125" cy="78" r="5" fill="#1a0e04" stroke="#c8a020" stroke-width="1.5"/>
+          <circle cx="125" cy="78" r="2.5" fill="#2a1a06" opacity="0.8"/>
+          <!-- water reflection under hull -->
+          <path d="M30 92 Q90 108 150 92" fill="none" stroke="rgba(80,160,220,0.2)" stroke-width="2"/>
+        </svg>
+      </div>
+      <div id="mpg-menu-panel">
+        <div id="mpg-menu-eyecatcher">☠</div>
+        <div id="mpg-menu-title">Market Pirate</div>
+        <div id="mpg-menu-subtitle">Port o' Thieves — Est. 1689</div>
+        <div id="mpg-menu-divider"></div>
+        <div id="mpg-menu-coins">${coinsHtml}</div>
+        <button id="mpg-play-btn">⚓ Set Sail</button>
+        <div id="mpg-menu-hint">WASD to move · E to interact · E near enemies to fight</div>
+      </div>`;
+
+    document.body.appendChild(this.overlay);
+    document.getElementById('mpg-play-btn').addEventListener('click', () => this._play());
+  }
+
+  _wavePath(offset, amplitude, period, yBase, viewH) {
+    const W = 1440;
+    let d = `M0 ${viewH}`;
+    d += ` L0 ${yBase}`;
+    // build wave using cubic bezier segments
+    const segs = 6;
+    const segW = W / segs;
+    for (let i = 0; i < segs; i++) {
+      const x0 = i * segW;
+      const x1 = x0 + segW * 0.5;
+      const x2 = x0 + segW;
+      const y0 = yBase + Math.sin((x0 / W) * period * Math.PI * 2 + offset) * amplitude;
+      const y1 = yBase + Math.sin((x1 / W) * period * Math.PI * 2 + offset) * amplitude;
+      const y2 = yBase + Math.sin((x2 / W) * period * Math.PI * 2 + offset) * amplitude;
+      if (i === 0) d += ` Q${x1} ${y1} ${x2} ${y2}`;
+      else         d += ` Q${x1} ${y1} ${x2} ${y2}`;
+    }
+    d += ` L${W} ${viewH} Z`;
+    return d;
+  }
+
+  _animateWaves() {
+    const VW = 1440, VH = 320;
+    const w1 = document.getElementById('mpg-wave1');
+    const w2 = document.getElementById('mpg-wave2');
+    const w3 = document.getElementById('mpg-wave3');
+    const f1 = document.getElementById('mpg-foam1');
+    const f2 = document.getElementById('mpg-foam2');
+    const boatWrap = document.getElementById('mpg-menu-boat-wrap');
+
+    let t = 0;
+    const tick = () => {
+      t += 0.008;
+
+      if (w1) w1.setAttribute('d', this._wavePath(t,       22, 2.0, 60,  VH));
+      if (w2) w2.setAttribute('d', this._wavePath(t+1.2,   30, 1.6, 100, VH));
+      if (w3) w3.setAttribute('d', this._wavePath(t+2.5,   18, 2.4, 140, VH));
+
+      // foam follows wave 1 top edge
+      if (f1) {
+        let fd = `M0 ${60 + Math.sin(t) * 22}`;
+        for (let i = 1; i <= 6; i++) {
+          const x = (i / 6) * VW;
+          const y = 60 + Math.sin((i / 6) * 2.0 * Math.PI * 2 + t) * 22;
+          fd += ` L${x} ${y}`;
+        }
+        f1.setAttribute('d', fd);
+      }
+      if (f2) {
+        let fd = `M0 ${100 + Math.sin(t + 1.2) * 30}`;
+        for (let i = 1; i <= 6; i++) {
+          const x = (i / 6) * VW;
+          const y = 100 + Math.sin((i / 6) * 1.6 * Math.PI * 2 + (t + 1.2)) * 30;
+          fd += ` L${x} ${y}`;
+        }
+        f2.setAttribute('d', fd);
+      }
+
+      // boat bobs with wave 1 at center x
+      if (boatWrap) {
+        const waveY = Math.sin(t) * 22; // wave1 amplitude at center
+        const extra = waveY * 0.28; // subtle vertical nudge tied to wave
+        boatWrap.style.marginBottom = `${extra.toFixed(1)}px`;
+      }
+
+      this._raf = requestAnimationFrame(tick);
+    };
+    this._raf = requestAnimationFrame(tick);
+  }
+
+  _play() {
+    this.overlay.classList.add('hidden');
+    setTimeout(() => { this.destroy(); this._onPlay?.(); }, 600);
+  }
+
+  destroy() {
+    if (this._raf) cancelAnimationFrame(this._raf);
+    this._raf = null;
+    this.overlay?.remove();
+    document.getElementById('mpg-menu-style')?.remove();
+  }
+}
+
 // ── BattleUI ──────────────────────────────────────────────────────────────────
 class BattleUI {
   constructor(enemyType, onClose, startingHp=80, playerLevel=1, playerAtk=10, playerDef=3, playerMaxHp=80) {
@@ -757,11 +1159,19 @@ class MarketPirateGame {
     };
     window.addEventListener('keydown',this._keyHandler);
 
+    // Show menu first — game starts on Play
+    this._gameStarted = false;
+    this._menuScreen = new MenuScreen(() => this._startGame());
+  }
+
+  // ── Start (called from menu) ───────────────────────────────────────────────
+  _startGame() {
+    this._gameStarted = true;
     this._spawnEnemies(8);
-    this._respawnTimer=setInterval(()=>{
-      this._worldEnemies=this._worldEnemies.filter(e=>!e.defeated);
-      if(this._worldEnemies.length<4) this._spawnEnemies(3);
-    },25000);
+    this._respawnTimer = setInterval(() => {
+      this._worldEnemies = this._worldEnemies.filter(e => !e.defeated);
+      if (this._worldEnemies.length < 4) this._spawnEnemies(3);
+    }, 25000);
   }
 
   // ── HUD ───────────────────────────────────────────────────────────────────
@@ -1014,6 +1424,7 @@ class MarketPirateGame {
 
   // ── Game loop ─────────────────────────────────────────────────────────────
   update() {
+    if(!this._gameStarted) return;
     if(!this.gameEnv?.gameObjects) return;
     const player=this.gameEnv.gameObjects.find(o=>o instanceof Player);
     if(!player) return;
@@ -1052,6 +1463,7 @@ class MarketPirateGame {
     if(this.hudBar?.parentNode)    this.hudBar.remove();
     if(this._lvlFlash?.parentNode) this._lvlFlash.remove();
     if(this._ui)                   this._ui.destroy();
+    if(this._menuScreen)           this._menuScreen.destroy();
     document.getElementById('gameover-overlay')?.remove();
     document.getElementById('mpg-hud-style')?.remove();
   }
