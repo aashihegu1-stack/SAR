@@ -425,7 +425,6 @@ class BlackbeardChase {
           <div class="bbc-e-stat"><div class="bbc-e-val" id="bbc-go-time">0s</div><div class="bbc-e-lbl">Survived</div></div>
           <div class="bbc-e-stat"><div class="bbc-e-val" id="bbc-go-coins">0</div><div class="bbc-e-lbl">Coins</div></div>
         </div>
-        <div id="bbc-go-leaderboard" style="width:100%;max-width:300px;margin:6px 0;padding:8px;background:rgba(0,0,0,0.35);border:1px solid rgba(240,192,48,0.3);border-radius:6px;"></div>
         <button class="bbc-end-btn" id="bbc-retry-btn">⚓ Try Again</button>
       </div>`;
     document.body.appendChild(this._goScreen);
@@ -442,7 +441,6 @@ class BlackbeardChase {
           <div class="bbc-e-stat"><div class="bbc-e-val" id="bbc-win-coins">0</div><div class="bbc-e-lbl">Coins</div></div>
           <div class="bbc-e-stat"><div class="bbc-e-val" id="bbc-win-hits">0</div><div class="bbc-e-lbl">Hits Taken</div></div>
         </div>
-        <div id="bbc-win-leaderboard" style="width:100%;max-width:300px;margin:6px 0;padding:8px;background:rgba(0,0,0,0.35);border:1px solid rgba(240,192,48,0.3);border-radius:6px;"></div>
         <button class="bbc-end-btn bbc-win-btn" id="bbc-again-btn">🌊 Play Again</button>
       </div>`;
     document.body.appendChild(this._winScreen);
@@ -1037,7 +1035,7 @@ class BlackbeardChase {
       document.getElementById('bbc-go-coins').textContent = this._coinsGot;
 
       this._leaderboard.submitScore(this._playerName, this._coinsGot);
-      this._leaderboard.renderInto(document.getElementById('bbc-go-leaderboard'));
+      this._leaderboard.open();
 
       this._goScreen.classList.remove('bbc-hidden');
       requestAnimationFrame(() => this._goScreen.classList.add('bbc-show'));
@@ -1063,7 +1061,7 @@ class BlackbeardChase {
       document.getElementById('bbc-win-hits').textContent  = this._hitsTaken;
 
       this._leaderboard.submitScore(this._playerName, this._coinsGot);
-      this._leaderboard.renderInto(document.getElementById('bbc-win-leaderboard'));
+      this._leaderboard.open();
 
       this._winScreen.classList.remove('bbc-hidden');
       requestAnimationFrame(() => this._winScreen.classList.add('bbc-show'));
